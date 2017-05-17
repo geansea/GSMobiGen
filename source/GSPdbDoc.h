@@ -1,8 +1,7 @@
 #ifndef GSPdbDoc_h
 #define GSPdbDoc_h
 
-#include <string>
-#include <vector>
+#include "GSMobiHelper.h"
 
 class GSPdbDoc
 {
@@ -11,13 +10,15 @@ public:
     ~GSPdbDoc();
 
 public: // Read
-    bool Open(std::string fileName);
+    bool Open(string fileName);
     int RecordCount();
-    const std::vector<unsigned char> * GetRecord(int index);
+    const GS_BYTES * GetRecord(int index);
 
 public: // Write
 
 private:
+    int m_recordCount;
+    vector<GS_BYTES> m_records;
 };
 
 #endif /* GSPdbDoc_h */
