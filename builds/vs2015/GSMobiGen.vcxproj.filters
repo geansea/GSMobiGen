@@ -20,10 +20,16 @@
     <ClCompile Include="..\..\main.cpp">
       <Filter>tool</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\GSPdbDoc.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\GSMobiDoc.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\GSPdbDoc.h">
+      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

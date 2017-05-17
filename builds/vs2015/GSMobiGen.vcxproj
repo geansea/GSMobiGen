@@ -21,9 +21,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\main.cpp" />
     <ClCompile Include="..\..\source\GSMobiDoc.cpp" />
+    <ClCompile Include="..\..\source\GSPdbDoc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\GSMobiDoc.h" />
+    <ClInclude Include="..\..\source\GSPdbDoc.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{62CF52E2-0DED-4007-BF3A-BC1B9170837F}</ProjectGuid>
