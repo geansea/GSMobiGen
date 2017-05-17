@@ -9,10 +9,21 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="tool">
+      <UniqueIdentifier>{08ebd951-2eab-4e76-a630-c2f1c5420926}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\main.cpp">
+    <ClCompile Include="..\..\source\GSMobiDoc.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\main.cpp">
+      <Filter>tool</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\GSMobiDoc.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
