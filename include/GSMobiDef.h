@@ -6,7 +6,6 @@
 
 using namespace std;
 
-typedef unsigned char GS_BYTE;
-typedef vector<GS_BYTE> GS_BYTES;
+typedef vector<uint8_t> GSBytes;
 
 #endif /* GSMobiDef_h */

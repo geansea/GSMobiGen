@@ -1,7 +1,7 @@
 #ifndef GSPdbDoc_h
 #define GSPdbDoc_h
 
-#include "GSMobiHelper.h"
+#include "GSPdbHelper.h"
 
 class GSPdbDoc
 {
@@ -12,13 +12,14 @@ public:
 public: // Read
     bool Open(string fileName);
     int RecordCount();
-    const GS_BYTES * GetRecord(int index);
+    const GSBytes * GetRecord(int index);
 
 public: // Write
+    void SetHeader(const PdbHeader &header);
 
 private:
-    int m_recordCount;
-    vector<GS_BYTES> m_records;
+    PdbHeader  m_header;
+    RecordList m_recordList;
 };
 
 #endif /* GSPdbDoc_h */

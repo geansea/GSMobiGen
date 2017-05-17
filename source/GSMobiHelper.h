@@ -1,6 +1,6 @@
 #ifndef GSMobiHelper_h
 #define GSMobiHelper_h
 
-#include "GSPdbHelper.h"
+#include "../include/GSMobiDef.h"
 
 #endif /* GSMobiHelper_h */
