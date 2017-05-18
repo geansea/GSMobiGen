@@ -10,14 +10,18 @@ public:
     ~GSPdbDoc();
 
 public: // Read
-    bool Open(const string &fileName);
+    bool Open(const string & fileName);
     int RecordCount();
     const GSBytes * GetRecord(int index);
 
 public: // Write
-    void SetHeader(const GSPdbHeader &header);
-    void AddRecord(const GSBytes &record);
-    bool WriteTo(const string &fileName);
+    void SetHeader(const GSPdbHeader & header);
+    void AddRecord(const GSBytes & record);
+    bool WriteTo(const string & fileName);
+
+private:
+    bool ReadFile(const string & fileName, GSBytes & bytes);
+    bool WriteFile(const string & fileName, const GSBytes & bytes);
 
 private:
     GSPdbHeader     m_header;

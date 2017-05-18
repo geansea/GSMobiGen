@@ -19,18 +19,24 @@ struct GSPdbHeader
     char     type[4];            // [3Ch~40h]: 
     char     creator[4];         // [40h~44h]: 
     uint32_t uniqueIDSeed;       // [44h~48h]: 
-};
 
-#define GSPDB_HEADER_LEN 0x48
+    GSPdbHeader()
+    {
+        memset(this, 0, sizeof(*this));
+    }
+};
 
 struct GSPdbRecord
 {
     uint32_t recordDataOff;
     uint8_t  recordAttributes;
     uint8_t  uniqueID[3];
-};
 
-#define GSPDB_RECORD_LEN 8
+    GSPdbRecord()
+    {
+        memset(this, 0, sizeof(*this));
+    }
+};
 
 struct GSPdbRecordList
 {
@@ -38,8 +44,12 @@ struct GSPdbRecordList
     uint16_t            numRecords;        // [04h~06h]: 
     vector<GSPdbRecord> records;           // [06h~??h]: 
     // Add 2 bytes padding
-};
 
-#define PDB_RECORD_LIST_LEN 6
+    GSPdbRecordList()
+        : nextRecordListOff(0)
+        , numRecords(0)
+    {
+    }
+};
 
 #endif /* GSPdbHelper_h */
