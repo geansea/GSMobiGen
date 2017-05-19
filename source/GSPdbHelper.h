@@ -26,6 +26,8 @@ struct GSPdbHeader
     }
 };
 
+#define PDB_HEADER_LEN 0x48
+
 struct GSPdbRecord
 {
     uint32_t recordDataOff;
@@ -37,6 +39,8 @@ struct GSPdbRecord
         memset(this, 0, sizeof(*this));
     }
 };
+
+#define PDB_RECORD_LEN 8
 
 struct GSPdbRecordList
 {
@@ -51,5 +55,7 @@ struct GSPdbRecordList
     {
     }
 };
+
+#define PDB_RECORD_LIST_LEN 8
 
 #endif /* GSPdbHelper_h */

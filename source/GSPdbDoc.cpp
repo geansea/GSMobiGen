@@ -16,6 +16,10 @@ bool GSPdbDoc::Open(const string & fileName)
     {
         return false;
     }
+    if (pdbBytes.size() < PDB_HEADER_LEN + PDB_RECORD_LIST_LEN)
+    {
+        return false;
+    }
     const char *p = &pdbBytes[0];
     // Header
     memcpy(m_header.name, p, 0x20); p += 0x20;
@@ -31,51 +35,28 @@ bool GSPdbDoc::Open(const string & fileName)
     memcpy(m_header.creator, p, 4); p += 4;
     m_header.uniqueIDSeed       = GSGetU32BE(p);
     // Record List
-    /*
-    do
+    m_recordList.nextRecordListOff = GSGetU32BE(p);
+    m_recordList.numRecords = GSGetU16BE(p);
+    if (0 != m_recordList.nextRecordListOff)
     {
-        if (DKR_OK != m_pStream->Read(bytes, PDB_RECORD_LIST_LEN))
-        {
-            break;
-        }
-
-        m_pRecordList->nextRecordListOff = GetU32BE(bytes);
-        m_pRecordList->numRecords = GetU16BE(bytes + 4);
-
-        entryNum = m_entryNum;
-        m_entryNum += m_pRecordList->numRecords;
-        if (DK_NULL == m_pRecordList->pRecords)
-        {
-            m_pRecordList->pRecords = DK_MALLOCZ_OBJ_N(PdbRecord, m_entryNum);
-            if (DK_NULL == m_pRecordList->pRecords)
-            {
-                break;
-            }
-        }
-        else
-        {
-            pRecord = (PdbRecord *)DK_REALLOC(m_pRecordList->pRecords, m_entryNum * sizeof(PdbRecord));
-            if (DK_NULL == pRecord)
-            {
-                break;
-            }
-            memset(pRecord + entryNum, 0, m_pRecordList->numRecords * sizeof(PdbRecord));
-            m_pRecordList->pRecords = pRecord;
-        }
-        // ∂¡»°Record¡–±Ì
-        for (; entryNum < m_entryNum; entryNum++)
-        {
-            if (DKR_OK != m_pStream->Read(bytes, PDB_RECORD_LEN))
-            {
-                break;
-            }
-
-            m_pRecordList->pRecords[entryNum].recordDataOff = GetU32BE(bytes);
-            m_pRecordList->pRecords[entryNum].recordAttributes = *(bytes + 4);
-            memcpy(m_pRecordList->pRecords[entryNum].uniqueID, bytes + 5, 3);
-        }
-    } while (m_pRecordList->nextRecordListOff);
-    */
+        // No necessary to support
+        return false;
+    }
+    if (0 == m_recordList.numRecords)
+    {
+        return false;
+    }
+    if (pdbBytes.size() < PDB_HEADER_LEN + PDB_RECORD_LIST_LEN + m_recordList.numRecords * PDB_RECORD_LEN)
+    {
+        return false;
+    }
+    for (uint16_t i = 0; i < m_recordList.numRecords; ++i)
+    {
+        GSPdbRecord record;
+        record.recordDataOff = GSGetU32BE(p);
+        record.recordAttributes = *(p++);
+        memcpy(record.uniqueID, p, 3); p += 3;
+    }
     return true;
 }
 
