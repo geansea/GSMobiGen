@@ -12,11 +12,11 @@ public:
 public: // Read
     bool Open(const string & fileName);
     int RecordCount();
-    const GSBytes * GetRecord(int index);
+    const GSBytes * GetRecordData(int index);
 
 public: // Write
     void SetHeader(const GSPdbHeader & header);
-    void AddRecord(const GSBytes & record);
+    void AddRecordData(const GSBytes & recordData);
     bool WriteTo(const string & fileName);
 
 private:
@@ -26,7 +26,7 @@ private:
 private:
     GSPdbHeader     m_header;
     GSPdbRecordList m_recordList;
-    vector<GSBytes> m_records;
+    vector<GSBytes> m_recordDatas;
 };
 
 #endif /* GSPdbDoc_h */
