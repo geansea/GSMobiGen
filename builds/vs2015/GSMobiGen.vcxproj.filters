@@ -31,9 +31,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\GSMobiDoc.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\GSPdbDoc.h">
       <Filter>source</Filter>
     </ClInclude>
@@ -45,6 +42,15 @@
     </ClInclude>
     <ClInclude Include="..\..\include\GSMobiDef.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IGSMobiDoc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IGSMobiPacker.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\GSMobiDoc.h">
+      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

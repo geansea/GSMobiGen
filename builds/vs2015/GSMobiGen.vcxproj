@@ -27,7 +27,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\GSMobiDef.h" />
-    <ClInclude Include="..\..\include\GSMobiDoc.h" />
+    <ClInclude Include="..\..\include\IGSMobiDoc.h" />
+    <ClInclude Include="..\..\include\IGSMobiPacker.h" />
+    <ClInclude Include="..\..\source\GSMobiDoc.h" />
     <ClInclude Include="..\..\source\GSMobiHelper.h" />
     <ClInclude Include="..\..\source\GSPdbDoc.h" />
     <ClInclude Include="..\..\source\GSPdbHelper.h" />
