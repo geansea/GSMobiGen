@@ -1,20 +1,30 @@
 #ifndef GSPdbHelper_h
 #define GSPdbHelper_h
 
-#include "../include/GSMobiDef.h"
+#include <vector>
+
+using namespace std;
+
+typedef vector<char> GSBytes;
+
+inline void GSGetArray(const char *& p, char * dst, int size)
+{
+    memcpy(dst, p, size);
+    p += size;
+}
 
 inline uint16_t GSGetU16BE(const char *& p) {
     uint16_t u = ((uint16_t)p[0] << 8) 
-        + ((uint16_t)p[1]     );
+               + ((uint16_t)p[1]     );
     p += 2;
     return u;
 }
 
 inline uint32_t GSGetU32BE(const char *& p) {
     uint32_t u = ((uint32_t)p[0] << 24) 
-        + ((uint32_t)p[1] << 16) 
-        + ((uint32_t)p[2] <<  8) 
-        + ((uint32_t)p[3]      );
+               + ((uint32_t)p[1] << 16) 
+               + ((uint32_t)p[2] <<  8) 
+               + ((uint32_t)p[3]      );
     p += 4;
     return u;
 }

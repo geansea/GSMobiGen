@@ -1,4 +1,4 @@
-#include "include/GSMobiDoc.h"
+#include "source/GSMobiDoc.h"
 
 int main(int argc, char* argv[])
 {
