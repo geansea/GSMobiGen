@@ -10,7 +10,6 @@ public:
     virtual ~IGSMobiPacker() {}
 
 public:
-    virtual void AddRecord(const GSBytes & record) = 0;
     virtual bool WriteTo(const char * pFileName) = 0;
 };
 

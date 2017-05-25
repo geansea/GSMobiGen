@@ -14,9 +14,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\GSMobiDoc.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\main.cpp">
       <Filter>tool</Filter>
     </ClCompile>
@@ -40,17 +37,8 @@
     <ClInclude Include="..\..\source\GSPdbHelper.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\GSMobiDef.h">
-      <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\IGSMobiDoc.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\IGSMobiPacker.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\GSMobiDoc.h">
-      <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\GSMobiPacker.h">
       <Filter>source</Filter>

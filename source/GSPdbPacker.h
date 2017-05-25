@@ -7,11 +7,11 @@ class GSPdbPacker
 {
 public:
     GSPdbPacker();
-    virtual ~GSPdbPacker();
+    ~GSPdbPacker();
 
 public:
-    virtual void AddRecord(const GSBytes & record);
-    virtual bool WriteTo(const char * pFileName);
+    void AddRecord(const GSBytes & record);
+    bool WriteTo(const char * pFileName);
 
 private:
     GSPdbHeader     m_header;
