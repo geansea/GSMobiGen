@@ -5,10 +5,17 @@
 
 // Based on http://wiki.mobileread.com/wiki/MOBI
 
+enum
+{
+    GS_MOBI_COMP_NONE = 1,
+    GS_MOBI_COMP_LZ77 = 2,
+    GS_MOBI_COMP_HUFF = 0x4448,
+};
+
 struct GSPalmDocHeader
 {
     uint16_t compression;    // [00h~02h]: 1 - no comp, 2 - PalmDOC(LZ77), 0x4448 - HUFF/CDIC
-    uint16_t unused;         // [02h~04h]
+    uint16_t unused;         // [02h~04h]: 
     uint32_t textlength;     // [04h~08h]: 
     uint16_t recordCount;    // [08h~0Ah]: 
     uint16_t recordSize;     // [0Ah~0Ch]: 0x1000
@@ -23,18 +30,11 @@ struct GSPalmDocHeader
 
 #define GS_PALM_DOC_HEADER_LEN 0x10
 
-#define GS_MOBI_TYPE_MOBIPOCKET_BOOK 0x0002
-// #define MOBI_TYPE_PALMDOC_BOOK    0x0003
-// #define MOBI_TYPE_AUDIO           0x0004
-// #define MOBI_TYPE_NEWS            0x0101
-// #define MOBI_TYPE_NEWS_FEED       0x0102
-#define GS_MOBI_TYPE_NEWS_MAGAZINE   0x0103
-// #define MOBI_TYPE_PICS            0x0201
-// #define MOBI_TYPE_WORD            0x0202
-// #define MOBI_TYPE_XLS_BOOK        0x0203
-// #define MOBI_TYPE_PPT             0x0204
-// #define MOBI_TYPE_TEXT            0x0205
-// #define MOBI_TYPE_HTML            0x0206
+enum
+{
+    GS_MOBI_TYPE_MOBIPOCKET_BOOK = 0x0002,
+    GS_MOBI_TYPE_NEWS_MAGAZINE   = 0x0103,
+};
 
 struct GSMobiHeader
 {
@@ -48,7 +48,12 @@ struct GSMobiHeader
     uint32_t inflectionIndex;     // [1Ch~20h]: Section number of inflection meta index
     uint32_t indexNames;          // [20h~24h]: 
     uint32_t indexKeys;           // [24h~28h]: 
-    uint32_t extraIndex[6];       // [28h~40h]: Section number of extra meta index
+    uint32_t extraIndex0;         // [28h~2Ch]: 
+    uint32_t extraIndex1;         // [2Ch~30h]: 
+    uint32_t extraIndex2;         // [30h~34h]: 
+    uint32_t extraIndex3;         // [34h~38h]: 
+    uint32_t extraIndex4;         // [38h~3Ch]: 
+    uint32_t extraIndex5;         // [3Ch~40h]: 
     uint32_t firstNonBookIndex;   // [40h~44h]: 
     uint32_t fullNameOffset;      // [44h~48h]: 
     uint32_t fullNameLength;      // [48h~4Ch]: 
@@ -59,18 +64,30 @@ struct GSMobiHeader
     uint32_t firstImageIndex;     // [5Ch~60h]: 
     uint32_t huffmanRecordOffset; // [60h~64h]: 
     uint32_t huffmanRecordCount;  // [64h~68h]: 
-    uint32_t huffmanTableOffset;  // [68h~6Ch]
-    uint32_t huffmanTableLength;  // [6Ch~70h]
+    uint32_t huffmanTableOffset;  // [68h~6Ch]: 
+    uint32_t huffmanTableLength;  // [6Ch~70h]: 
     uint32_t exthFlags;           // [70h~74h]: 
-    uint32_t unknownBytes1[8];    // [74h~94h]: 
-    uint32_t drmOffset;           // [94h~98h]
-    uint32_t drmCount;            // [98h~9Ch]
-    uint32_t drmSize;             // [9Ch~A0h]
-    uint32_t drmFlags;            // [A0h~A4h]
-    uint32_t unknownBytes2[15];   // [A4h~E0h]: 
-    uint16_t unknownBytes3;       // [E0h~E2h]: 
-    uint16_t extraDataFlags;      // [E2h~E4h]: 
-    uint32_t indxRecordOffset;    // [E4h~E8h]: 
+    uint32_t unknown0;            // [74h~78h]: 
+    uint32_t unknown1;            // [78h~7Ch]: 
+    uint32_t unknown2;            // [7Ch~80h]: 
+    uint32_t unknown3;            // [80h~84h]: 
+    uint32_t unknown4;            // [84h~88h]: 
+    uint32_t unknown5;            // [88h~8Ch]: 
+    uint32_t unknown6;            // [8Ch~90h]: 
+    uint32_t unknown7;            // [90h~94h]: 
+    uint32_t unknown8;            // [94h~98h]: 
+    uint32_t drmOffset;           // [98h~9Ch]: 
+    uint32_t drmCount;            // [9Ch~A0h]: 
+    uint32_t drmSize;             // [A0h~A4h]: 
+    uint32_t drmFlags;            // [A4h~A8h]: 
+    uint32_t unknown9;            // [A8h~ACh]: 
+    uint32_t unknown10;           // [ACh~B0h]: 
+    uint32_t firstContentIndex;   // 1
+    uint32_t lastContentIndex;    // 
+    uint32_t unknownBytes2[15];   // [E0h~E2h]: 
+    uint16_t unknownBytes3;       // [E2h~E4h]: 
+    uint16_t extraDataFlags;      // [E4h~E8h]: 
+    uint32_t indxRecordOffset;    // 
 
     // Default values for MOBI
     GSMobiHeader();
@@ -82,16 +99,16 @@ struct GSMobiHeader
 
 struct GSExthRecord
 {
-    uint32_t recordType;  // 
-    uint32_t recordLen;   // 
+    uint32_t type;        // [00h~04h]: 
+    uint32_t recordLen;   // [04h~08h]: 
     char *   pRecordData; // size: recordLen - 8
 };
 
 struct GSExthHeader
 {
-    char        identifier[4]; // 'EXTH'
-    uint32_t    headerLength;  // 
-    uint32_t    recordCount;   // 
+    uint32_t    identifier;   // [00h~04h]: 'EXTH'
+    uint32_t    headerLength; // [04h~08h]: 
+    uint32_t    recordCount;  // [08h~0Ch]: 
     GSExthRecord * pRecords;
     // padding
 };

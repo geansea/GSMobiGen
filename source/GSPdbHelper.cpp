@@ -17,12 +17,12 @@ GSPdbHeader::GSPdbHeader()
     , nextRecordListOff(0)
     , numRecords(0)
 {
-    memset(name, 0, 0x20);
+    memset(name, 0, sizeof(name));
 }
 
 void GSPdbHeader::ReadFrom(const char * p)
 {
-    GSGetArray(p, name, 0x20);
+    GSGetArray(p, name, sizeof(name));
     GSGetU16BE(p, attributes);
     GSGetU16BE(p, version);
     GSGetU32BE(p, creationDate);
@@ -40,7 +40,7 @@ void GSPdbHeader::ReadFrom(const char * p)
 
 void GSPdbHeader::WriteTo(GSBytes & bytes) const
 {
-    GSPushArray(bytes, name, 0x20);
+    GSPushArray(bytes, name, sizeof(name));
     GSPushU16BE(bytes, attributes);
     GSPushU16BE(bytes, version);
     GSPushU32BE(bytes, creationDate);
