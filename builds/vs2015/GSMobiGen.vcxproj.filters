@@ -20,9 +20,6 @@
     <ClCompile Include="..\..\main.cpp">
       <Filter>tool</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\GSPdbDoc.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\GSMobiHelper.cpp">
       <Filter>source</Filter>
     </ClCompile>
@@ -32,11 +29,11 @@
     <ClCompile Include="..\..\source\GSMobiPacker.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\GSPdbPacker.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\GSPdbDoc.h">
-      <Filter>source</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\GSMobiHelper.h">
       <Filter>source</Filter>
     </ClInclude>
@@ -56,6 +53,9 @@
       <Filter>source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\GSMobiPacker.h">
+      <Filter>source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\GSPdbPacker.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>

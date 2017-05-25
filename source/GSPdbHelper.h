@@ -13,20 +13,18 @@ inline void GSGetArray(const char *& p, char * dst, int size)
     p += size;
 }
 
-inline uint16_t GSGetU16BE(const char *& p) {
-    uint16_t u = ((uint16_t)p[0] << 8) 
-               + ((uint16_t)p[1]     );
+inline void GSGetU16BE(const char *& p, uint16_t & u) {
+    u = ((uint16_t)p[0] << 8) 
+      + ((uint16_t)p[1]     );
     p += 2;
-    return u;
 }
 
-inline uint32_t GSGetU32BE(const char *& p) {
-    uint32_t u = ((uint32_t)p[0] << 24) 
-               + ((uint32_t)p[1] << 16) 
-               + ((uint32_t)p[2] <<  8) 
-               + ((uint32_t)p[3]      );
+inline void GSGetU32BE(const char *& p, uint32_t & u) {
+    u = ((uint32_t)p[0] << 24) 
+      + ((uint32_t)p[1] << 16) 
+      + ((uint32_t)p[2] <<  8) 
+      + ((uint32_t)p[3]      );
     p += 4;
-    return u;
 }
 
 inline void GSPushArray(GSBytes & bytes, const char * p, int size)
@@ -67,43 +65,30 @@ struct GSPdbHeader
     char     type[4];            // [3Ch~40h]: 
     char     creator[4];         // [40h~44h]: 
     uint32_t uniqueIDSeed;       // [44h~48h]: 
+    uint32_t nextRecordListOff;  // [48h~4Ch]: 
+    uint16_t numRecords;         // [4Ch~4Eh]: 
+    // Record List
+    // Add 2 bytes padding
 
-    GSPdbHeader()
-    {
-        memset(this, 0, sizeof(*this));
-    }
+    // Default values for MOBI
+    GSPdbHeader();
+    void ReadFrom(const char *p);
+    void WriteTo(GSBytes & bytes) const;
 };
 
-#define PDB_HEADER_LEN 0x48
+#define GS_PDB_HEADER_LEN 0x4E
 
 struct GSPdbRecord
 {
-    uint32_t recordDataOff;
-    uint8_t  recordAttributes;
+    uint32_t dataOff;
+    uint8_t  attributes;
     uint32_t uniqueID;
 
-    GSPdbRecord()
-    {
-        memset(this, 0, sizeof(*this));
-    }
+    GSPdbRecord();
+    void ReadFrom(const char *p);
+    void WriteTo(GSBytes & bytes) const;
 };
 
-#define PDB_RECORD_LEN 8
-
-struct GSPdbRecordList
-{
-    uint32_t            nextRecordListOff; // [00h~04h]: 
-    uint16_t            numRecords;        // [04h~06h]: 
-    vector<GSPdbRecord> records;           // [06h~??h]: 
-    // Add 2 bytes padding
-
-    GSPdbRecordList()
-        : nextRecordListOff(0)
-        , numRecords(0)
-    {
-    }
-};
-
-#define PDB_RECORD_LIST_LEN 8
+#define GS_PDB_RECORD_LEN 8
 
 #endif /* GSPdbHelper_h */

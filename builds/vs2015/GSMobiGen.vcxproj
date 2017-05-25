@@ -23,8 +23,8 @@
     <ClCompile Include="..\..\source\GSMobiDoc.cpp" />
     <ClCompile Include="..\..\source\GSMobiHelper.cpp" />
     <ClCompile Include="..\..\source\GSMobiPacker.cpp" />
-    <ClCompile Include="..\..\source\GSPdbDoc.cpp" />
     <ClCompile Include="..\..\source\GSPdbHelper.cpp" />
+    <ClCompile Include="..\..\source\GSPdbPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\GSMobiDef.h" />
@@ -33,8 +33,8 @@
     <ClInclude Include="..\..\source\GSMobiDoc.h" />
     <ClInclude Include="..\..\source\GSMobiHelper.h" />
     <ClInclude Include="..\..\source\GSMobiPacker.h" />
-    <ClInclude Include="..\..\source\GSPdbDoc.h" />
     <ClInclude Include="..\..\source\GSPdbHelper.h" />
+    <ClInclude Include="..\..\source\GSPdbPacker.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{62CF52E2-0DED-4007-BF3A-BC1B9170837F}</ProjectGuid>
