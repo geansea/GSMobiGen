@@ -38,7 +38,7 @@ struct GSPalmDocHeader
 
 struct GSMobiHeader
 {
-    char     identifier[4];       // [00h~04h]: 'MOBI'
+    uint32_t identifier;          // [00h~04h]: 'MOBI'
     uint32_t headerLength;        // [04h~08h]: 
     uint32_t mobiType;            // [08h~0Ch]: 
     uint32_t textEncoding;        // [0Ch~10h]: 0x04E4(1252) - CP1252(WinLatin1), 0xFDE9 - UTF-8

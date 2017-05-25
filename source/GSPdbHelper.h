@@ -62,8 +62,8 @@ struct GSPdbHeader
     uint32_t modificationNumber; // [30h~34h]: 
     uint32_t appInfoOff;         // [34h~38h]: 
     uint32_t sortInfoOff;        // [38h~3Ch]: 
-    char     type[4];            // [3Ch~40h]: 'BOOK'
-    char     creator[4];         // [40h~44h]: 'MOBI'
+    uint32_t type;               // [3Ch~40h]: 'BOOK'
+    uint32_t creator;            // [40h~44h]: 'MOBI'
     uint32_t uniqueIDSeed;       // [44h~48h]: 
     uint32_t nextRecordListOff;  // [48h~4Ch]: 
     uint16_t numRecords;         // [4Ch~4Eh]: 
