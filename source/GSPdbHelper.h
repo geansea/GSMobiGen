@@ -7,7 +7,7 @@ using namespace std;
 
 typedef vector<char> GSBytes;
 
-inline void GSGetArray(const char *& p, char * dst, int size)
+inline void GSGetArray(const char *& p, char * dst, size_t size)
 {
     memcpy(dst, p, size);
     p += size;
@@ -27,12 +27,16 @@ inline void GSGetU32BE(const char *& p, uint32_t & u) {
     p += 4;
 }
 
-inline void GSPushArray(GSBytes & bytes, const char * p, int size)
+inline void GSPushArray(GSBytes & bytes, const char * p, size_t size)
 {
+#if 0
+    bytes.insert(bytes.end(), p, p + size);
+#else
     for (int i = 0; i < size; ++i)
     {
         bytes.push_back(p[i]);
     }
+#endif
 }
 
 inline void GSPushU16BE(GSBytes & bytes, uint16_t u)
@@ -72,7 +76,7 @@ struct GSPdbHeader
 
     // Default values for MOBI
     GSPdbHeader();
-    void ReadFrom(const char *p);
+    void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
 };
 
@@ -85,7 +89,7 @@ struct GSPdbRecord
     uint32_t uniqueID;
 
     GSPdbRecord();
-    void ReadFrom(const char *p);
+    void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
 };
 

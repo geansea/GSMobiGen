@@ -22,9 +22,8 @@ struct GSPalmDocHeader
     uint16_t encryptionType; // [0Ch~0Eh]: 0 - no enc, 1 - Old Mobipocket Encryption, 2 - Mobipocket Encryption
     uint16_t reserve;        // [0Eh~10h]: 
 
-    // Default values for MOBI
     GSPalmDocHeader();
-    void ReadFrom(const char *p);
+    void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
 };
 
@@ -98,28 +97,34 @@ struct GSMobiHeader
     uint32_t extraDataFlags;      // [E0h~E4h]: 
     uint32_t indxRecordOffset;    // [E4h~E8h]: 
 
-    // Default values for MOBI
     GSMobiHeader();
-    void ReadFrom(const char *p);
+    void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
 };
 
 #define GS_MOBI_HEADER_LEN 0xE8
 
-struct GSExthRecord
-{
-    uint32_t type;        // [00h~04h]: 
-    uint32_t recordLen;   // [04h~08h]: 
-    char *   pRecordData; // size: recordLen - 8
-};
-
 struct GSExthHeader
 {
-    uint32_t    identifier;   // [00h~04h]: 'EXTH'
-    uint32_t    headerLength; // [04h~08h]: 
-    uint32_t    recordCount;  // [08h~0Ch]: 
-    GSExthRecord * pRecords;
+    uint32_t identifier;   // [00h~04h]: 'EXTH'
+    uint32_t headerLength; // [04h~08h]: 
+    uint32_t recordCount;  // [08h~0Ch]: 
     // padding
+
+    GSExthHeader();
+    void ReadFrom(const char *& p);
+    void WriteTo(GSBytes & bytes) const;
+};
+
+struct GSExthRecord
+{
+    uint32_t type;   // [00h~04h]: 
+    uint32_t length; // [04h~08h]: 
+    GSBytes  data;   // size: length - 8
+
+    GSExthRecord();
+    void ReadFrom(const char *& p);
+    void WriteTo(GSBytes & bytes) const;
 };
 
 #endif /* GSMobiHelper_h */

@@ -11,7 +11,7 @@ GSPalmDocHeader::GSPalmDocHeader()
 {
 }
 
-void GSPalmDocHeader::ReadFrom(const char * p)
+void GSPalmDocHeader::ReadFrom(const char *& p)
 {
     GSGetU16BE(p, compression);
     GSGetU16BE(p, unused);
@@ -96,7 +96,7 @@ GSMobiHeader::GSMobiHeader()
 {
 }
 
-void GSMobiHeader::ReadFrom(const char * p)
+void GSMobiHeader::ReadFrom(const char *& p)
 {
     GSGetU32BE(p, identifier);
     GSGetU32BE(p, headerLength);
@@ -220,4 +220,46 @@ void GSMobiHeader::WriteTo(GSBytes & bytes) const
     GSPushU32BE(bytes, unknown15);
     GSPushU32BE(bytes, extraDataFlags);
     GSPushU32BE(bytes, indxRecordOffset);
+}
+
+GSExthHeader::GSExthHeader()
+    : identifier('EXTH')
+    , headerLength(0)
+    , recordCount(0)
+{
+}
+
+void GSExthHeader::ReadFrom(const char *& p)
+{
+    GSGetU32BE(p, identifier);
+    GSGetU32BE(p, headerLength);
+    GSGetU32BE(p, recordCount);
+}
+
+void GSExthHeader::WriteTo(GSBytes & bytes) const
+{
+    GSPushU32BE(bytes, identifier);
+    GSPushU32BE(bytes, headerLength);
+    GSPushU32BE(bytes, recordCount);
+}
+
+GSExthRecord::GSExthRecord()
+    : type(0)
+    , length(0)
+{
+}
+
+void GSExthRecord::ReadFrom(const char *& p)
+{
+    GSGetU32BE(p, type);
+    GSGetU32BE(p, length);
+    data.resize(length - 8, 0);
+    GSGetArray(p, &data[0], data.size());
+}
+
+void GSExthRecord::WriteTo(GSBytes & bytes) const
+{
+    GSPushU32BE(bytes, type);
+    GSPushU32BE(bytes, length);
+    GSPushArray(bytes, &data[0], data.size());
 }

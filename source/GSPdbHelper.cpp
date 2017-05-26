@@ -20,7 +20,7 @@ GSPdbHeader::GSPdbHeader()
     memset(name, 0, sizeof(name));
 }
 
-void GSPdbHeader::ReadFrom(const char * p)
+void GSPdbHeader::ReadFrom(const char *& p)
 {
     GSGetArray(p, name, sizeof(name));
     GSGetU16BE(p, attributes);
@@ -63,7 +63,7 @@ GSPdbRecord::GSPdbRecord()
 {
 }
 
-void GSPdbRecord::ReadFrom(const char * p)
+void GSPdbRecord::ReadFrom(const char *& p)
 {
     GSGetU32BE(p, dataOff);
     GSGetU32BE(p, uniqueID);
