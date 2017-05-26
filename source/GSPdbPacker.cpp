@@ -37,7 +37,7 @@ bool GSPdbPacker::WriteTo(const char * pFilePath)
         record.WriteTo(bytes);
         record.dataOff += (uint32_t)m_records[i].size();
     }
-    GSPushU16BE(bytes, 0); // padding
+    GSPushPadding(bytes);
     for (uint16_t i = 0; i < recordCount; ++i)
     {
         bytes.insert(bytes.end(), m_records[i].begin(), m_records[i].end());

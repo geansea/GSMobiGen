@@ -28,12 +28,21 @@ inline void GSGetU32BE(const char *& p, uint32_t & u) {
     p += 4;
 }
 
+inline void GSPushPadding(GSBytes & bytes)
+{
+    size_t paddingLen = 4 - bytes.size() % 4;
+    if (paddingLen < 4)
+    {
+        bytes.insert(bytes.end(), paddingLen, 0);
+    }
+}
+
 inline void GSPushArray(GSBytes & bytes, const char * p, size_t size)
 {
 #if 0
     bytes.insert(bytes.end(), p, p + size);
 #else
-    for (int i = 0; i < size; ++i)
+    for (size_t i = 0; i < size; ++i)
     {
         bytes.push_back(p[i]);
     }
