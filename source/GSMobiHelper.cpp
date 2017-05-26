@@ -36,7 +36,7 @@ void GSPalmDocHeader::WriteTo(GSBytes & bytes) const
 GSMobiHeader::GSMobiHeader()
     : identifier('MOBI')
     , headerLength(GS_MOBI_HEADER_LEN)
-    , mobiType(GS_MOBI_TYPE_MOBIPOCKET_BOOK)
+    , mobiType(GS_MOBI_MOBIPOCKET_BOOK)
     , textEncoding(0xFDE9)
     , uniqueID(rand())
     , fileVersion(6)

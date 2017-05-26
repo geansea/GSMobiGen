@@ -26,6 +26,7 @@
     <ClCompile Include="..\..\source\GSPdbPacker.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\GSMobiDef.h" />
     <ClInclude Include="..\..\include\IGSMobiPacker.h" />
     <ClInclude Include="..\..\source\GSMobiHelper.h" />
     <ClInclude Include="..\..\source\GSMobiPacker.h" />

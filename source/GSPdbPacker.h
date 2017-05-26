@@ -11,7 +11,7 @@ public:
 
 public:
     void AddRecord(const GSBytes & record);
-    bool WriteTo(const char * pFileName);
+    bool WriteTo(const char * pFilePath);
 
 private:
     GSPdbHeader     m_header;

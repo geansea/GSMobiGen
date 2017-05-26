@@ -29,12 +29,6 @@ struct GSPalmDocHeader
 
 #define GS_PALM_DOC_HEADER_LEN 0x10
 
-enum
-{
-    GS_MOBI_TYPE_MOBIPOCKET_BOOK = 0x0002,
-    GS_MOBI_TYPE_NEWS_MAGAZINE   = 0x0103,
-};
-
 struct GSMobiHeader
 {
     uint32_t identifier;          // [00h~04h]: 'MOBI'
@@ -114,6 +108,18 @@ struct GSExthHeader
     GSExthHeader();
     void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
+};
+
+enum GS_MOBI_EXTH_INNER_TYPE
+{
+    GS_MOBI_EXTH_START_OFFSET      = 0x0074,
+    GS_MOBI_EXTH_COVER_INDEX       = 0x00C9, // Based on firstImageIndex
+    GS_MOBI_EXTH_THUMB_INDEX       = 0x00CA, // Based on firstImageIndex
+    GS_MOBI_EXTH_HAS_FAKE_COVER    = 0x00CB, // 0
+    GS_MOBI_EXTH_CREATOR_SOFTWARE  = 0x00CC, // 200 - kindlegen Windows, 201 - kindlegen Linux, 202 - kindlegen Mac
+    GS_MOBI_EXTH_CREATOR_MAJOR_VER = 0x00CD, // 1
+    GS_MOBI_EXTH_CREATOR_MINOR_VER = 0x00CE, // 1
+    GS_MOBI_EXTH_CREATOR_BUILD_NUM = 0x00CF, // 99
 };
 
 struct GSExthRecord

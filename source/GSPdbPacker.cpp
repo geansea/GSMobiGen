@@ -14,10 +14,10 @@ void GSPdbPacker::AddRecord(const GSBytes & record)
     m_records.push_back(record);
 }
 
-bool GSPdbPacker::WriteTo(const char * pFileName)
+bool GSPdbPacker::WriteTo(const char * pFilePath)
 {
     // Create file
-    ofstream file(pFileName, ios::binary);
+    ofstream file(pFilePath, ios::binary);
     if (file.fail())
     {
         return false;
