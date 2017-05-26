@@ -32,10 +32,11 @@ void GSMobiPacker::AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue)
     {
         return;
     }
+    size_t valueLen = strlen(pValue);
     GSExthRecord record;
     record.type = type;
-    record.length = 12;
-    GSPushArray(record.data, pValue, strlen(pValue));
+    record.length = 8 + valueLen;
+    GSPushArray(record.data, pValue, valueLen);
     m_exthRecords.push_back(record);
 }
 
@@ -64,6 +65,11 @@ void GSMobiPacker::AddExthInfo(GS_MOBI_EXTH_INNER_TYPE type, int value)
     record.length = 12;
     GSPushU32BE(record.data, value);
     m_exthRecords.push_back(record);
+}
+
+string GSMobiPacker::BuildMainHtml()
+{
+    return string();
 }
 
 GSBytes GSMobiPacker::BuildRecord0()
