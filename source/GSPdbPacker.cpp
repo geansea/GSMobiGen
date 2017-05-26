@@ -23,7 +23,7 @@ bool GSPdbPacker::WriteTo(const char * pFileName)
         return false;
     }
     // Prepare
-    uint32_t recordCount = (uint32_t)m_records.size();
+    uint16_t recordCount = (uint16_t)m_records.size();
     m_header.numRecords = recordCount;
     m_header.uniqueIDSeed = recordCount * 2 + 1;
     GSPdbRecord record;
@@ -31,14 +31,14 @@ bool GSPdbPacker::WriteTo(const char * pFileName)
     // Output
     GSBytes bytes;
     m_header.WriteTo(bytes);
-    for (uint32_t i = 0; i < recordCount; ++i)
+    for (uint16_t i = 0; i < recordCount; ++i)
     {
         record.uniqueID = i * 2;
         record.WriteTo(bytes);
         record.dataOff += (uint32_t)m_records[i].size();
     }
     GSPushU16BE(bytes, 0); // padding
-    for (uint32_t i = 0; i < recordCount; ++i)
+    for (uint16_t i = 0; i < recordCount; ++i)
     {
         bytes.insert(bytes.end(), m_records[i].begin(), m_records[i].end());
     }

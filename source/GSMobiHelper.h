@@ -75,19 +75,28 @@ struct GSMobiHeader
     uint32_t unknown5;            // [88h~8Ch]: 
     uint32_t unknown6;            // [8Ch~90h]: 
     uint32_t unknown7;            // [90h~94h]: 
-    uint32_t unknown8;            // [94h~98h]: 
-    uint32_t drmOffset;           // [98h~9Ch]: 
-    uint32_t drmCount;            // [9Ch~A0h]: 
-    uint32_t drmSize;             // [A0h~A4h]: 
-    uint32_t drmFlags;            // [A4h~A8h]: 
+    uint32_t drmOffset;           // [94h~98h]: 
+    uint32_t drmCount;            // [98h~9Ch]: 
+    uint32_t drmSize;             // [9Ch~A0h]: 
+    uint32_t drmFlags;            // [A0h~A4h]: 
+    uint32_t unknown8;            // [A4h~A8h]: 
     uint32_t unknown9;            // [A8h~ACh]: 
     uint32_t unknown10;           // [ACh~B0h]: 
-    uint32_t firstContentIndex;   // 1
-    uint32_t lastContentIndex;    // 
-    uint32_t unknownBytes2[15];   // [E0h~E2h]: 
-    uint16_t unknownBytes3;       // [E2h~E4h]: 
-    uint16_t extraDataFlags;      // [E4h~E8h]: 
-    uint32_t indxRecordOffset;    // 
+    uint16_t firstContentIndex;   // [B0h~B2h]: 1
+    uint16_t lastContentIndex;    // [B2h~B4h]: 
+    uint32_t unknown11;           // [B4h~B8h]: 1
+    uint32_t fcisIndex;           // [B8h~BCh]: 
+    uint32_t fcisCount;           // [BCh~C0h]: 1
+    uint32_t flisIndex;           // [C0h~C4h]: 
+    uint32_t flisCount;           // [C4h~C8h]: 1
+    uint32_t unknown12;           // [C8h~CCh]: 
+    uint32_t unknown13;           // [CCh~D0h]: 
+    uint32_t srcsIndex;           // [D0h~D4h]: 0xFFFFFFFF
+    uint32_t srcsCount;           // [D4h~D8h]: 0
+    uint32_t unknown14;           // [D8h~DCh]: 0xFFFFFFFF
+    uint32_t unknown15;           // [DCh~E0h]: 0xFFFFFFFF
+    uint32_t extraDataFlags;      // [E0h~E4h]: 
+    uint32_t indxRecordOffset;    // [E4h~E8h]: 
 
     // Default values for MOBI
     GSMobiHeader();
