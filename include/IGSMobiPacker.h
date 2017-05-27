@@ -12,7 +12,10 @@ public:
     virtual ~IGSMobiPacker() {}
 
 public:
+    virtual void SetDatabaseName(const char * pName) = 0;
     virtual void SetTitle(const char * pTitle) = 0;
+    virtual void SetType(GS_MOBI_TYPE type) = 0;
+    virtual void AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue) = 0;
     virtual void SetCover(const char * pCoverPath) = 0;
     virtual bool WriteTo(const char * pFilePath) = 0;
 };

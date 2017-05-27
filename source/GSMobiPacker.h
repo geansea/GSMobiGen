@@ -3,7 +3,6 @@
 
 #include "../include/IGSMobiPacker.h"
 #include "GSMobiHelper.h"
-#include "GSMobiChapter.h"
 
 class GSMobiPacker : public IGSMobiPacker
 {
@@ -12,9 +11,10 @@ public:
     virtual ~GSMobiPacker();
 
 public:
+    virtual void SetDatabaseName(const char * pName);
     virtual void SetTitle(const char * pTitle);
-    void SetType(GS_MOBI_TYPE type);
-    void AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue);
+    virtual void SetType(GS_MOBI_TYPE type);
+    virtual void AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue);
     virtual void SetCover(const char * pCoverPath);
     virtual bool WriteTo(const char * pFilePath);
 
@@ -27,12 +27,13 @@ private:
     GSPalmDocHeader       m_palmHeader;
     GSMobiHeader          m_mobiHeader;
     vector<GSExthRecord>  m_exthRecords;
+    string                m_dbName;
     string                m_title;
     string                m_coverPath;
-    vector<GSMobiChapter> m_chapters;
+    vector<GSMobiSection> m_sections;
     int                   m_coverIndex;
     int                   m_thumbIndex;
-    int                   m_bodyOffset;
+    int                   m_startOffset;
 };
 
 #endif /* GSMobiPacker_h */

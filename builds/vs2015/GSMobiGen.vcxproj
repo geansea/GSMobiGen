@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main.cpp" />
-    <ClCompile Include="..\..\source\GSMobiChapter.cpp" />
     <ClCompile Include="..\..\source\GSMobiHelper.cpp" />
     <ClCompile Include="..\..\source\GSMobiPacker.cpp" />
     <ClCompile Include="..\..\source\GSPdbHelper.cpp" />
@@ -29,7 +28,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\GSMobiDef.h" />
     <ClInclude Include="..\..\include\IGSMobiPacker.h" />
-    <ClInclude Include="..\..\source\GSMobiChapter.h" />
     <ClInclude Include="..\..\source\GSMobiHelper.h" />
     <ClInclude Include="..\..\source\GSMobiPacker.h" />
     <ClInclude Include="..\..\source\GSPdbHelper.h" />

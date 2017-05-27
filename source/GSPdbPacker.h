@@ -10,6 +10,7 @@ public:
     ~GSPdbPacker();
 
 public:
+    void SetDatabaseName(const string & name);
     void AddRecord(const GSBytes & record);
     bool WriteTo(const char * pFilePath);
 

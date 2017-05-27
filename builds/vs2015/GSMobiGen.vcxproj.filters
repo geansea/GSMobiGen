@@ -29,9 +29,6 @@
     <ClCompile Include="..\..\source\GSPdbPacker.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\GSMobiChapter.cpp">
-      <Filter>source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\GSMobiHelper.h">
@@ -51,9 +48,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\GSMobiDef.h">
       <Filter>include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\GSMobiChapter.h">
-      <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

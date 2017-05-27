@@ -133,4 +133,21 @@ struct GSExthRecord
     void WriteTo(GSBytes & bytes) const;
 };
 
+struct GSMobiChapter
+{
+    string title;
+    string content;
+
+    GSMobiChapter();
+    void SetPureTextContent(const string & text);
+};
+
+struct GSMobiSection
+{
+    string                 title;
+    vector<GSMobiChapter> chapters;
+
+    GSMobiSection();
+};
+
 #endif /* GSMobiHelper_h */

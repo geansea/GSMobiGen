@@ -53,7 +53,7 @@ GSMobiHeader::GSMobiHeader()
     , firstNonBookIndex(1)
     , fullNameOffset(GS_PALM_DOC_HEADER_LEN + GS_MOBI_HEADER_LEN)
     , fullNameLength(0)
-    , locale(0) // Neutral
+    , locale(GS_MOBI_LANGUAGE_EN)
     , inputLanguage(0)
     , outputLanguage(0)
     , minVersion(6)
@@ -262,4 +262,16 @@ void GSExthRecord::WriteTo(GSBytes & bytes) const
     GSPushU32BE(bytes, type);
     GSPushU32BE(bytes, length);
     GSPushArray(bytes, &data[0], data.size());
+}
+
+GSMobiChapter::GSMobiChapter()
+{
+}
+
+void GSMobiChapter::SetPureTextContent(const string & text)
+{
+}
+
+GSMobiSection::GSMobiSection()
+{
 }

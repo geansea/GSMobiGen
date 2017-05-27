@@ -6,6 +6,7 @@ int main(int argc, char* argv[])
 {
     srand((unsigned int)time(NULL));
     IGSMobiPacker *packer = IGSMobiPacker::Create();
+    packer->SetTitle("");
     delete packer;
     return 0;
 }
