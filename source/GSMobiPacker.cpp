@@ -88,11 +88,15 @@ void GSMobiPacker::AddTextChapter(const char * pTitle, const char * pContent)
 bool GSMobiPacker::WriteTo(const char * pFilePath)
 {
     // Main records
+    string html = BuildMainHtml();
+    m_palmHeader.textlength = (uint32_t)html.length();
+    m_palmHeader.recordCount = (m_palmHeader.textlength + m_palmHeader.recordSize - 1) / m_palmHeader.recordSize;
+    m_mobiHeader.firstNonBookIndex = 1 + m_palmHeader.recordCount;
     // INDX records
     // Image records
+    // 
     // Record 0
     GSBytes record0 = BuildRecord0();
-    // 
     // Output
     GSPdbPacker packer;
     packer.SetDatabaseName(m_dbName);
@@ -197,6 +201,14 @@ GSBytes GSMobiPacker::BuildRecord0()
     AddExthInfo(GS_MOBI_EXTH_COVER_INDEX, m_coverIndex);
     AddExthInfo(GS_MOBI_EXTH_HAS_FAKE_COVER, 0);
     AddExthInfo(GS_MOBI_EXTH_THUMB_INDEX, m_thumbIndex);
+    uint32_t exthHeaderLength = GS_EXTH_HEADER_LEN;
+    for (uint32_t i = 0; i < exthHeader.recordCount; ++i)
+    {
+        exthHeaderLength += m_exthRecords[i].length;
+    }
+    exthHeader.headerLength = (exthHeaderLength + 3) / 4 * 4;
+    m_mobiHeader.fullNameOffset = GS_PALM_DOC_HEADER_LEN + GS_MOBI_HEADER_LEN + exthHeader.headerLength;
+    m_mobiHeader.fullNameLength = m_title.length();
     // Output
     GSBytes bytes;
     m_palmHeader.WriteTo(bytes);

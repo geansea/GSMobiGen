@@ -25,6 +25,7 @@ public:
 private:
     void AddExthInfo(GS_MOBI_EXTH_INNER_TYPE type, int value);
     string BuildMainHtml();
+    
     GSBytes BuildRecord0();
 
 private:
