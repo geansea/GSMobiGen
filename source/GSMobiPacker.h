@@ -16,6 +16,10 @@ public:
     virtual void SetType(GS_MOBI_TYPE type);
     virtual void AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue);
     virtual void SetCover(const char * pCoverPath);
+    virtual void SetThumb(const char * pThumbPath);
+    virtual void AddSection(const char * pTitle);
+    virtual void AddHtmlChapter(const char * pTitle, const char * pContent);
+    virtual void AddTextChapter(const char * pTitle, const char * pContent);
     virtual bool WriteTo(const char * pFilePath);
 
 private:
@@ -30,6 +34,7 @@ private:
     string                m_dbName;
     string                m_title;
     string                m_coverPath;
+    string                m_thumbPath;
     vector<GSMobiSection> m_sections;
     int                   m_coverIndex;
     int                   m_thumbIndex;

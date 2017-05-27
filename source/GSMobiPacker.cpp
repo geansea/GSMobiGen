@@ -24,18 +24,12 @@ GSMobiPacker::~GSMobiPacker()
 
 void GSMobiPacker::SetDatabaseName(const char * pName)
 {
-    if (NULL != pName)
-    {
-        m_dbName = pName;
-    }
+    m_dbName = pName;
 }
 
 void GSMobiPacker::SetTitle(const char * pTitle)
 {
-    if (NULL != pTitle)
-    {
-        m_title = pTitle;
-    }
+    m_title = pTitle;
 }
 
 void GSMobiPacker::SetType(GS_MOBI_TYPE type)
@@ -59,10 +53,36 @@ void GSMobiPacker::AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue)
 
 void GSMobiPacker::SetCover(const char * pCoverPath)
 {
-    if (NULL != pCoverPath)
+    m_coverPath = pCoverPath;
+}
+
+void GSMobiPacker::SetThumb(const char * pThumbPath)
+{
+    m_thumbPath = pThumbPath;
+}
+
+void GSMobiPacker::AddSection(const char * pTitle)
+{
+    GSMobiSection section;
+    section.title = pTitle;
+    m_sections.push_back(section);
+}
+
+void GSMobiPacker::AddHtmlChapter(const char * pTitle, const char * pContent)
+{
+    GSMobiChapter chapter;
+    chapter.title = pTitle;
+    chapter.content = pContent;
+    if (m_sections.empty())
     {
-        m_coverPath = pCoverPath;
+        AddSection("");
     }
+    GSMobiSection &currSection = m_sections.back();
+    currSection.chapters.push_back(chapter);
+}
+
+void GSMobiPacker::AddTextChapter(const char * pTitle, const char * pContent)
+{
 }
 
 bool GSMobiPacker::WriteTo(const char * pFilePath)
@@ -101,6 +121,7 @@ string GSMobiPacker::BuildMainHtml()
     }
     const int POS_LEN = 10;
     char posString[POS_LEN + 1] = "0000000000";
+    char idString[POS_LEN + 1] = "";
     // Output
     string html;
     html += "<html>";
@@ -122,12 +143,18 @@ string GSMobiPacker::BuildMainHtml()
     for (size_t i = 0; i < m_sections.size(); ++i)
     {
         const GSMobiSection &section = m_sections[i];
-        html += "<h4>" + section.title + "</h4>";
+        if (!section.title.empty())
+        {
+            html += "<h4>" + section.title + "</h4>";
+        }
         html += "<ul>";
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
             const GSMobiChapter &chapter = section.chapters[j];
-            html += "<li>" + chapter.title + "</li>";
+            snprintf(idString, POS_LEN, "%zu-%zu", i, j);
+            html += "<li><a href=\"#chap";
+            html += idString;
+            html += "\">" + chapter.title + "</a></li>";
         }
         html += "</ul>";
     }
@@ -139,10 +166,13 @@ string GSMobiPacker::BuildMainHtml()
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
             const GSMobiChapter &chapter = section.chapters[j];
-            html += "<h1>" + chapter.title + "</h1>";
-            html += chapter.content;
+            snprintf(idString, POS_LEN, "%zu-%zu", i, j);
+            html += "<h1 id=\"chap";
+            html += idString;
+            html += "\">" + chapter.title + "</h1>";
+            html += "<div>" + chapter.content + "</div>";
+            html += "<mbp:pagebreak />";
         }
-        html += "<mbp:pagebreak />";
     }
     html += "</body>";
     html += "</html>";
