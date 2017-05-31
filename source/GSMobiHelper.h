@@ -88,7 +88,7 @@ struct GSMobiHeader
     uint32_t srcsCount;           // [D4h~D8h]: 0
     uint32_t unknown14;           // [D8h~DCh]: 0xFFFFFFFF
     uint32_t unknown15;           // [DCh~E0h]: 0xFFFFFFFF
-    uint32_t extraDataFlags;      // [E0h~E4h]: 0x0B
+    uint32_t extraDataFlags;      // [E0h~E4h]: 0x01 or 0x03 or 0x0B (?)
     uint32_t indxRecordOffset;    // [E4h~E8h]: 
 
     GSMobiHeader();

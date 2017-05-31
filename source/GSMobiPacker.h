@@ -26,6 +26,7 @@ private:
     void AddExthInfo(GS_MOBI_EXTH_INNER_TYPE type, int value);
     string BuildMainHtml();
     vector<GSBytes> BuildTextRecords(const string & html);
+    GSBytes Lz77Compress(const GSBytes & bytes);
     GSBytes BuildRecord0();
 
 private:

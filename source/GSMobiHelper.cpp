@@ -91,7 +91,7 @@ GSMobiHeader::GSMobiHeader()
     , srcsCount(0)
     , unknown14(0xFFFFFFFF)
     , unknown15(0xFFFFFFFF)
-    , extraDataFlags(0) // 0x0B or 0x03
+    , extraDataFlags(0x01) // 0x03 or 0x0B
     , indxRecordOffset(0)
 {
 }

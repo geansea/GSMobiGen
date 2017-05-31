@@ -223,10 +223,40 @@ vector<GSBytes> GSMobiPacker::BuildTextRecords(const string & html)
     {
         size_t size = min(html.length() - pos, maxSize);
         GSBytes record(html.begin() + pos, html.begin() + pos + size);
-        records.push_back(record);
         pos += size;
+        if (GS_MOBI_COMP_LZ77 == m_palmHeader.compression)
+        {
+            record = Lz77Compress(record);
+        }
+        char overlap = 0;
+        for (; overlap < 3; ++overlap)
+        {
+            if (0x80 != (html[pos + overlap] & 0xC0))
+            {
+                break;
+            }
+            record.push_back(html[pos + overlap]);
+        }
+        record.push_back(overlap);
+        records.push_back(record);
     }
     return records;
+}
+
+GSBytes GSMobiPacker::Lz77Compress(const GSBytes & bytes)
+{
+    // todo
+    // fake compress
+    GSBytes lz77;
+    size_t pos = 0;
+    while (pos < bytes.size())
+    {
+        size_t size = min(bytes.size() - pos, (size_t)8);
+        lz77.push_back((char)size);
+        lz77.insert(lz77.end(), bytes.begin() + pos, bytes.begin() + pos + size);
+        pos += size;
+    }
+    return lz77;
 }
 
 GSBytes GSMobiPacker::BuildRecord0()
