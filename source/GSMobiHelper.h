@@ -47,7 +47,7 @@ struct GSMobiHeader
     uint32_t extraIndex3;         // [34h~38h]: 0xFFFFFFFF
     uint32_t extraIndex4;         // [38h~3Ch]: 0xFFFFFFFF
     uint32_t extraIndex5;         // [3Ch~40h]: 0xFFFFFFFF
-    uint32_t firstNonBookIndex;   // [40h~44h]: GSPalmDocHeader.recordCount + 2
+    uint32_t firstNonBookIndex;   // [40h~44h]: GSPalmDocHeader.recordCount + (1 or 2)
     uint32_t fullNameOffset;      // [44h~48h]: GS_PALM_DOC_HEADER_LEN + GS_MOBI_HEADER_LEN + GSExthHeader.headerLength
     uint32_t fullNameLength;      // [48h~4Ch]: 
     uint32_t locale;              // [4Ch~50h]: GS_MOBI_LANGUAGE

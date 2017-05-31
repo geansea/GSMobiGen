@@ -83,15 +83,36 @@ void GSMobiPacker::AddHtmlChapter(const char * pTitle, const char * pContent)
 
 void GSMobiPacker::AddTextChapter(const char * pTitle, const char * pContent)
 {
+    GSMobiChapter chapter;
+    chapter.title = pTitle;
+    chapter.SetPureTextContent(pContent);
+    if (m_sections.empty())
+    {
+        AddSection("");
+    }
+    GSMobiSection &currSection = m_sections.back();
+    currSection.chapters.push_back(chapter);
 }
 
 bool GSMobiPacker::WriteTo(const char * pFilePath)
 {
     // Main records
     string html = BuildMainHtml();
+    vector<GSBytes> textRecords = BuildTextRecords(html);
+    size_t textRecordsLen = 0;
+    for (size_t i = 0; i < textRecords.size(); ++i)
+    {
+        textRecordsLen += textRecords[i].size();
+    }
     m_palmHeader.textlength = (uint32_t)html.length();
-    m_palmHeader.recordCount = (m_palmHeader.textlength + m_palmHeader.recordSize - 1) / m_palmHeader.recordSize;
+    m_palmHeader.recordCount = (uint16_t)textRecords.size();
     m_mobiHeader.firstNonBookIndex = 1 + m_palmHeader.recordCount;
+    if (textRecordsLen % 4)
+    {
+        GSBytes padding(4 - textRecordsLen % 4, 0);
+        textRecords.push_back(padding);
+        m_mobiHeader.firstNonBookIndex += 1;
+    }
     // INDX records
     // Image records
     // 
@@ -101,6 +122,10 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     GSPdbPacker packer;
     packer.SetDatabaseName(m_dbName);
     packer.AddRecord(record0);
+    for (size_t i = 0; i < textRecords.size(); ++i)
+    {
+        packer.AddRecord(textRecords[i]);
+    }
     return packer.WriteTo(pFilePath);
 }
 
@@ -189,6 +214,21 @@ string GSMobiPacker::BuildMainHtml()
     return html;
 }
 
+vector<GSBytes> GSMobiPacker::BuildTextRecords(const string & html)
+{
+    vector<GSBytes> records;
+    size_t pos = 0;
+    size_t maxSize = m_palmHeader.recordSize;
+    while (pos < html.length())
+    {
+        size_t size = min(html.length() - pos, maxSize);
+        GSBytes record(html.begin() + pos, html.begin() + pos + size);
+        records.push_back(record);
+        pos += size;
+    }
+    return records;
+}
+
 GSBytes GSMobiPacker::BuildRecord0()
 {
     // Prepare
@@ -208,7 +248,7 @@ GSBytes GSMobiPacker::BuildRecord0()
     }
     exthHeader.headerLength = (exthHeaderLength + 3) / 4 * 4;
     m_mobiHeader.fullNameOffset = GS_PALM_DOC_HEADER_LEN + GS_MOBI_HEADER_LEN + exthHeader.headerLength;
-    m_mobiHeader.fullNameLength = m_title.length();
+    m_mobiHeader.fullNameLength = (uint32_t)m_title.length();
     // Output
     GSBytes bytes;
     m_palmHeader.WriteTo(bytes);
