@@ -14,7 +14,6 @@ IGSMobiPacker * IGSMobiPacker::Create()
 GSMobiPacker::GSMobiPacker()
     : m_coverIndex(0)
     , m_thumbIndex(0)
-    , m_startOffset(0)
 {
 }
 
@@ -61,6 +60,11 @@ void GSMobiPacker::SetThumb(const char * pThumbPath)
     m_thumbPath = pThumbPath;
 }
 
+void GSMobiPacker::SetMasthead(const char * pMastheadPath)
+{
+    m_mastheadPath = pMastheadPath;
+}
+
 void GSMobiPacker::AddSection(const char * pTitle)
 {
     GSMobiSection section;
@@ -96,35 +100,71 @@ void GSMobiPacker::AddTextChapter(const char * pTitle, const char * pContent)
 
 bool GSMobiPacker::WriteTo(const char * pFilePath)
 {
-    // Main records
+    vector<GSBytes> pdbRecords(1, GSBytes());
+    //
+    // Text records
+    //
     string html = BuildMainHtml();
     vector<GSBytes> textRecords = BuildTextRecords(html);
+    m_palmHeader.textlength = (uint32_t)html.length();
+    m_palmHeader.recordCount = (uint16_t)textRecords.size();
     size_t textRecordsLen = 0;
     for (size_t i = 0; i < textRecords.size(); ++i)
     {
+        pdbRecords.push_back(textRecords[i]);
         textRecordsLen += textRecords[i].size();
     }
-    m_palmHeader.textlength = (uint32_t)html.length();
-    m_palmHeader.recordCount = (uint16_t)textRecords.size();
-    m_mobiHeader.firstNonBookIndex = 1 + m_palmHeader.recordCount;
     if (textRecordsLen % 4)
     {
         GSBytes padding(4 - textRecordsLen % 4, 0);
-        textRecords.push_back(padding);
-        m_mobiHeader.firstNonBookIndex += 1;
+        pdbRecords.push_back(padding);
     }
+    m_mobiHeader.firstNonBookIndex = (uint32_t)pdbRecords.size();
+    //
     // INDX records
+    //
+    pdbRecords.push_back(BuildINDXInfo());
+    pdbRecords.push_back(BuildINDXValue());
+    //
+    // CNCX records
+    //
+    pdbRecords.push_back(BuildCNCX());
+    //
+    // INDX records
+    //
+    if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
+    {
+        pdbRecords.push_back(BuildINDXInfo(true));
+        pdbRecords.push_back(BuildINDXValue(true));
+    }
+    //
     // Image records
-    // 
+    //
+    m_mobiHeader.firstImageIndex = (uint32_t)pdbRecords.size();
+    m_coverIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
+
+    m_thumbIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
+
+    //
+    // FLIS & FCIS & End
+    //
+    m_mobiHeader.flisIndex = (uint32_t)pdbRecords.size();
+    pdbRecords.push_back(BuildFLIS());
+    m_mobiHeader.fcisIndex = (uint32_t)pdbRecords.size();
+    pdbRecords.push_back(BuildFCIS());
+    pdbRecords.push_back(BuildEOF());
+    //
     // Record 0
-    GSBytes record0 = BuildRecord0();
+    //
+    pdbRecords[0] = BuildRecord0();
+    //
     // Output
+    //
     GSPdbPacker packer;
     packer.SetDatabaseName(m_dbName);
-    packer.AddRecord(record0);
-    for (size_t i = 0; i < textRecords.size(); ++i)
+    for (size_t i = 0; i < pdbRecords.size(); ++i)
     {
-        packer.AddRecord(textRecords[i]);
+        packer.AddRecord(pdbRecords[i]);
     }
     return packer.WriteTo(pFilePath);
 }
@@ -188,29 +228,31 @@ string GSMobiPacker::BuildMainHtml()
         html += "</ul>";
     }
     html += "<mbp:pagebreak />";
-    size_t startPos = html.length();
     for (size_t i = 0; i < m_sections.size(); ++i)
     {
-        const GSMobiSection &section = m_sections[i];
+        GSMobiSection &section = m_sections[i];
+        section.htmlBeginPos = html.length();
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
-            const GSMobiChapter &chapter = section.chapters[j];
+            GSMobiChapter &chapter = section.chapters[j];
+            chapter.htmlBeginPos = html.length();
             snprintf(idString, POS_LEN, "%zu-%zu", i, j);
             html += "<h1 id=\"chap";
             html += idString;
             html += "\">" + chapter.title + "</h1>";
             html += "<div>" + chapter.content + "</div>";
             html += "<mbp:pagebreak />";
+            chapter.htmlEndPos = html.length();
         }
+        section.htmlEndPos = html.length();
     }
     html += "</body>";
     html += "</html>";
     // Fix pos
     snprintf(posString, POS_LEN, "%0*zu", POS_LEN, tocPos);
     html.replace(tocPosIndex, POS_LEN, posString, POS_LEN);
-    snprintf(posString, POS_LEN, "%0*zu", POS_LEN, startPos);
+    snprintf(posString, POS_LEN, "%0*zu", POS_LEN, m_sections[0].htmlBeginPos);
     html.replace(startPosIndex, POS_LEN, posString, POS_LEN);
-    m_startOffset = (int)startPos;
     return html;
 }
 
@@ -259,11 +301,68 @@ GSBytes GSMobiPacker::Lz77Compress(const GSBytes & bytes)
     return lz77;
 }
 
+GSBytes GSMobiPacker::BuildINDXInfo(bool secondary)
+{
+    return GSBytes();
+}
+
+GSBytes GSMobiPacker::BuildINDXValue(bool secondary)
+{
+    return GSBytes();
+}
+
+GSBytes GSMobiPacker::BuildCNCX()
+{
+    return GSBytes();
+}
+
+GSBytes GSMobiPacker::BuildFLIS()
+{
+    GSBytes bytes;
+    GSPushU32BE(bytes, 'FLIS');
+    GSPushU32BE(bytes, 8);
+    GSPushU16BE(bytes, 0x41);
+    GSPushU16BE(bytes, 0);
+    GSPushU32BE(bytes, 0);
+    GSPushU32BE(bytes, 0xFFFFFFFF);
+    GSPushU16BE(bytes, 1);
+    GSPushU16BE(bytes, 3);
+    GSPushU32BE(bytes, 3);
+    GSPushU32BE(bytes, 1);
+    GSPushU32BE(bytes, 0xFFFFFFFF);
+    return bytes;
+}
+
+GSBytes GSMobiPacker::BuildFCIS()
+{
+    GSBytes bytes;
+    GSPushU32BE(bytes, 'FCIS');
+    GSPushU32BE(bytes, 0x14);
+    GSPushU32BE(bytes, 0x10);
+    GSPushU32BE(bytes, 1);
+    GSPushU32BE(bytes, 0);
+    GSPushU32BE(bytes, m_palmHeader.textlength);
+    GSPushU32BE(bytes, 0);
+    GSPushU32BE(bytes, 0x20);
+    GSPushU32BE(bytes, 8);
+    GSPushU16BE(bytes, 1);
+    GSPushU16BE(bytes, 1);
+    GSPushU32BE(bytes, 0);
+    return bytes;
+}
+
+GSBytes GSMobiPacker::BuildEOF()
+{
+    GSBytes bytes;
+    GSPushU32BE(bytes, '\xE9\x8E\x0D\x0A');
+    return bytes;
+}
+
 GSBytes GSMobiPacker::BuildRecord0()
 {
     // Prepare
     GSExthHeader exthHeader;
-    AddExthInfo(GS_MOBI_EXTH_START_OFFSET, m_startOffset);
+    AddExthInfo(GS_MOBI_EXTH_START_OFFSET, m_sections[0].htmlBeginPos);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_SOFTWARE, 202);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_MAJOR_VER, 1);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_MINOR_VER, 1);

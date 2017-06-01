@@ -264,7 +264,111 @@ void GSExthRecord::WriteTo(GSBytes & bytes) const
     GSPushArray(bytes, &data[0], data.size());
 }
 
+GSIndxHeader::GSIndxHeader()
+    : identifier('INDX')
+    , headerLen(GS_INDX_HEADER_LEN)
+    , unknown0(0)
+    , unknown1(0)
+    , indexType(0)
+    , idxtOffset(0)
+    , indexCount(1)
+    , indexEncoding(0xFDE9)
+    , indexLanguage(0xFFFFFFFF)
+    , entryCount(0)
+    , ordtOffset(0)
+    , ligtOffset(0)
+    , ligtCount(0)
+    , cncxCount(1)
+    , tagxOffset(0)
+    , unknown33(0)
+    , unknown34(0)
+{
+}
+
+void GSIndxHeader::ReadFrom(const char *& p)
+{
+    GSGetU32BE(p, identifier);
+    GSGetU32BE(p, headerLen);
+    GSGetU32BE(p, unknown0);
+    GSGetU32BE(p, unknown1);
+    GSGetU32BE(p, indexType);
+    GSGetU32BE(p, idxtOffset);
+    GSGetU32BE(p, indexCount);
+    GSGetU32BE(p, indexEncoding);
+    GSGetU32BE(p, indexLanguage);
+    GSGetU32BE(p, entryCount);
+    GSGetU32BE(p, ordtOffset);
+    GSGetU32BE(p, ligtOffset);
+    GSGetU32BE(p, ligtCount);
+    GSGetU32BE(p, cncxCount);
+    p += 0x7C;
+    GSGetU32BE(p, tagxOffset);
+    GSGetU32BE(p, unknown33);
+    GSGetU32BE(p, unknown34);
+}
+
+void GSIndxHeader::WriteTo(GSBytes & bytes) const
+{
+    GSPushU32BE(bytes, identifier);
+    GSPushU32BE(bytes, headerLen);
+    GSPushU32BE(bytes, unknown0);
+    GSPushU32BE(bytes, unknown1);
+    GSPushU32BE(bytes, indexType);
+    GSPushU32BE(bytes, idxtOffset);
+    GSPushU32BE(bytes, indexCount);
+    GSPushU32BE(bytes, indexEncoding);
+    GSPushU32BE(bytes, indexLanguage);
+    GSPushU32BE(bytes, entryCount);
+    GSPushU32BE(bytes, ordtOffset);
+    GSPushU32BE(bytes, ligtOffset);
+    GSPushU32BE(bytes, ligtCount);
+    GSPushU32BE(bytes, cncxCount);
+    bytes.insert(bytes.end(), 0x7C, 0);
+    GSPushU32BE(bytes, tagxOffset);
+    GSPushU32BE(bytes, unknown33);
+    GSPushU32BE(bytes, unknown34);
+}
+
+GSTagx::GSTagx()
+    : identifier('TAGX')
+    , length(0)
+    , controlByteCount(1)
+{
+}
+
+void GSTagx::ReadFrom(const char *& p)
+{
+    GSGetU32BE(p, identifier);
+    GSGetU32BE(p, length);
+    GSGetU32BE(p, controlByteCount);
+    for (uint16_t i = GS_TAGX_HEADER_LEN; i < length; i += 4)
+    {
+        uint32_t tag = 0;
+        GSGetU32BE(p, tag);
+        tags.push_back(tag);
+    }
+}
+
+void GSTagx::WriteTo(GSBytes & bytes) const
+{
+    GSPushU32BE(bytes, identifier);
+    GSPushU32BE(bytes, length);
+    GSPushU32BE(bytes, controlByteCount);
+    for (size_t i = 0; i < tags.size(); ++i)
+    {
+        GSPushU32BE(bytes, tags[i]);
+    }
+}
+
+void GSTagx::AddTag(GS_TAGX_TAG tag, int valueNum, int mask)
+{
+    uint32_t tagValue = (tag << 24) | (valueNum << 16) | (mask << 8) | (GS_TAGX_END == tag);
+    tags.push_back(tagValue);
+}
+
 GSMobiChapter::GSMobiChapter()
+    : htmlBeginPos(0)
+    , htmlEndPos(0)
 {
 }
 
@@ -273,5 +377,7 @@ void GSMobiChapter::SetPureTextContent(const string & text)
 }
 
 GSMobiSection::GSMobiSection()
+    : htmlBeginPos(0)
+    , htmlEndPos(0)
 {
 }

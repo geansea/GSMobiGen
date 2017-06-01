@@ -3,6 +3,18 @@
 
 #include "GSPdbHelper.h"
 
+// Variable-Width Integer
+inline void GSPushVWInt(GSBytes & bytes, unsigned u)
+{
+    GSBytes rbytes;
+    rbytes.push_back(0x80 | (u & 0x7F));
+    for (u >>= 7; u; u >>= 7)
+    {
+        rbytes.push_back(u & 0x7F);
+    }
+    bytes.insert(bytes.end(), rbytes.rbegin(), rbytes.rend());
+}
+
 // Based on http://wiki.mobileread.com/wiki/MOBI
 
 enum
@@ -135,10 +147,103 @@ struct GSExthRecord
     void WriteTo(GSBytes & bytes) const;
 };
 
+struct GSIndxHeader
+{
+    uint32_t identifier;    // [00h~04h]: 'INDX'
+    uint32_t headerLen;     // [04h~08h]: GS_INDX_HEADER_LEN
+    uint32_t unknown0;      // [08h~0Ch]: 0
+    uint32_t unknown1;      // [0Ch~10h]: 0 or 1
+    uint32_t indexType;     // [10h~14h]: 0 - normal, 2 - inflection
+    uint32_t idxtOffset;    // [14h~18h]: 
+    uint32_t indexCount;    // [18h~1Ch]: 1
+    uint32_t indexEncoding; // [1Ch~20h]: 0xFDE9 - UTF-8
+    uint32_t indexLanguage; // [20h~24h]: 0xFFFFFFFF
+    uint32_t entryCount;    // [24h~28h]: 0
+    uint32_t ordtOffset;    // [28h~2Ch]: 0
+    uint32_t ligtOffset;    // [2Ch~30h]: 0
+    uint32_t ligtCount;     // [30h~34h]: 0
+    uint32_t cncxCount;     // [34h~38h]: 1
+    //uint32_t unknown2;      // [38h~3Ch]: 0
+    //uint32_t unknown3;      // [3Ch~40h]: 0
+    //uint32_t unknown4;      // [40h~44h]: 0
+    //uint32_t unknown5;      // [44h~48h]: 0
+    //uint32_t unknown6;      // [48h~4Ch]: 0
+    //uint32_t unknown7;      // [4Ch~50h]: 0
+    //uint32_t unknown8;      // [50h~54h]: 0
+    //uint32_t unknown9;      // [54h~58h]: 0
+    //uint32_t unknown10;     // [58h~5Ch]: 0
+    //uint32_t unknown11;     // [5Ch~60h]: 0
+    //uint32_t unknown12;     // [60h~64h]: 0
+    //uint32_t unknown13;     // [64h~68h]: 0
+    //uint32_t unknown14;     // [68h~6Ch]: 0
+    //uint32_t unknown15;     // [6Ch~70h]: 0
+    //uint32_t unknown16;     // [70h~74h]: 0
+    //uint32_t unknown17;     // [74h~78h]: 0
+    //uint32_t unknown18;     // [78h~7Ch]: 0
+    //uint32_t unknown19;     // [7Ch~80h]: 0
+    //uint32_t unknown20;     // [80h~84h]: 0
+    //uint32_t unknown21;     // [84h~88h]: 0
+    //uint32_t unknown22;     // [88h~8Ch]: 0
+    //uint32_t unknown23;     // [8Ch~90h]: 0
+    //uint32_t unknown24;     // [90h~94h]: 0
+    //uint32_t unknown25;     // [94h~98h]: 0
+    //uint32_t unknown26;     // [98h~9Ch]: 0
+    //uint32_t unknown27;     // [9Ch~A0h]: 0
+    //uint32_t unknown28;     // [A0h~A4h]: 0
+    //uint32_t unknown29;     // [A4h~A8h]: 0
+    //uint32_t unknown30;     // [A8h~ACh]: 0
+    //uint32_t unknown31;     // [ACh~B0h]: 0
+    //uint32_t unknown32;     // [B0h~B4h]: 0
+    uint32_t tagxOffset;    // [B4h~B8h]: 0 or GS_INDX_HEADER_LEN
+    uint32_t unknown33;     // [B8h~BCh]: 0
+    uint32_t unknown34;     // [BCh~C0h]: 0
+
+    GSIndxHeader();
+    void ReadFrom(const char *& p);
+    void WriteTo(GSBytes & bytes) const;
+};
+
+#define GS_INDX_HEADER_LEN 0xC0
+
+enum GS_TAGX_TAG
+{
+    GS_TAGX_END              = 0, 
+    GS_TAGX_Offset           = 1,  // NCX | Position offset for the beginning of NCX record (filepos) Ex: Beginning of a chapter
+    GS_TAGX_Length           = 2,  // NCX | Record length. Ex: Chapter length
+    GS_TAGX_LabelOffset      = 3,  // NCX | Label offset in CNCX
+    GS_TAGX_Depth            = 4,  // NCX | Depth/Level of CNCX
+    GS_TAGX_ClassOffset      = 5,  // NCX | Class offset in CNCX
+    GS_TAGX_PosFid           = 6,  // NCX | pos:fid
+    GS_TAGX_Secondary        = 11, // Secondary (?)
+    GS_TAGX_Parent           = 21, // NCX | Parent
+    GS_TAGX_Child1           = 22, // NCX | First child
+    GS_TAGX_ChildN           = 23, // NCX | Last child
+    GS_TAGX_ImageIndex       = 69, // Image Index
+    GS_TAGX_DescOffset       = 70, // Description offset in cncx
+    GS_TAGX_AuthorOffset     = 71, // Author offset in cncx
+};
+
+struct GSTagx
+{
+    uint32_t         identifier;       // [00h~04h]: 'TAGX'
+    uint32_t         length;           // [04h~08h]: 
+    uint32_t         controlByteCount; // [08h~0Ch]: 1 or 2
+    vector<uint32_t> tags;
+
+    GSTagx();
+    void ReadFrom(const char *& p);
+    void WriteTo(GSBytes & bytes) const;
+    void AddTag(GS_TAGX_TAG tag, int valueNum, int mask);
+};
+
+#define GS_TAGX_HEADER_LEN 0x0C
+
 struct GSMobiChapter
 {
     string title;
     string content;
+    size_t htmlBeginPos;
+    size_t htmlEndPos;
 
     GSMobiChapter();
     void SetPureTextContent(const string & text);
@@ -146,10 +251,16 @@ struct GSMobiChapter
 
 struct GSMobiSection
 {
-    string                 title;
+    string                title;
     vector<GSMobiChapter> chapters;
+    size_t                htmlBeginPos;
+    size_t                htmlEndPos;
 
     GSMobiSection();
+};
+
+struct GSMobiEntry
+{
 };
 
 #endif /* GSMobiHelper_h */

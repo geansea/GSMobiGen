@@ -17,6 +17,7 @@ public:
     virtual void AddExthInfo(GS_MOBI_EXTH_TYPE type, const char * pValue);
     virtual void SetCover(const char * pCoverPath);
     virtual void SetThumb(const char * pThumbPath);
+    virtual void SetMasthead(const char * pMastheadPath);
     virtual void AddSection(const char * pTitle);
     virtual void AddHtmlChapter(const char * pTitle, const char * pContent);
     virtual void AddTextChapter(const char * pTitle, const char * pContent);
@@ -27,6 +28,12 @@ private:
     string BuildMainHtml();
     vector<GSBytes> BuildTextRecords(const string & html);
     GSBytes Lz77Compress(const GSBytes & bytes);
+    GSBytes BuildINDXInfo(bool secondary = false);
+    GSBytes BuildINDXValue(bool secondary = false);
+    GSBytes BuildCNCX();
+    GSBytes BuildFLIS();
+    GSBytes BuildFCIS();
+    GSBytes BuildEOF();
     GSBytes BuildRecord0();
 
 private:
@@ -37,10 +44,11 @@ private:
     string                m_title;
     string                m_coverPath;
     string                m_thumbPath;
+    string                m_mastheadPath;
     vector<GSMobiSection> m_sections;
     int                   m_coverIndex;
     int                   m_thumbIndex;
-    int                   m_startOffset;
+    int                   m_mastheadIndex;
 };
 
 #endif /* GSMobiPacker_h */
