@@ -121,17 +121,12 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     }
     m_mobiHeader.firstNonBookIndex = (uint32_t)pdbRecords.size();
     //
-    // INDX records
+    // INDX & CNCX records
     //
+    GSBytes cncxRecord = BuildCNCX();
     pdbRecords.push_back(BuildINDXInfo());
     pdbRecords.push_back(BuildINDXValue());
-    //
-    // CNCX records
-    //
-    pdbRecords.push_back(BuildCNCX());
-    //
-    // INDX records
-    //
+    pdbRecords.push_back(cncxRecord);
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
     {
         pdbRecords.push_back(BuildINDXInfo(true));

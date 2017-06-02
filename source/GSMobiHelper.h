@@ -4,7 +4,7 @@
 #include "GSPdbHelper.h"
 
 // Variable-Width Integer
-inline void GSPushVWInt(GSBytes & bytes, unsigned u)
+inline void GSPushVWInt(GSBytes & bytes, size_t u)
 {
     GSBytes rbytes;
     rbytes.push_back(0x80 | (u & 0x7F));
@@ -214,13 +214,13 @@ enum GS_TAGX_TAG
     GS_TAGX_Depth            = 4,  // NCX | Depth/Level of CNCX
     GS_TAGX_ClassOffset      = 5,  // NCX | Class offset in CNCX
     GS_TAGX_PosFid           = 6,  // NCX | pos:fid
-    GS_TAGX_Secondary        = 11, // Secondary (?)
     GS_TAGX_Parent           = 21, // NCX | Parent
     GS_TAGX_Child1           = 22, // NCX | First child
     GS_TAGX_ChildN           = 23, // NCX | Last child
     GS_TAGX_ImageIndex       = 69, // Image Index
     GS_TAGX_DescOffset       = 70, // Description offset in cncx
     GS_TAGX_AuthorOffset     = 71, // Author offset in cncx
+    GS_TAGX_Secondary        = 11, // Secondary (?)
 };
 
 struct GSTagx
@@ -261,6 +261,13 @@ struct GSMobiSection
 
 struct GSMobiEntry
 {
+    size_t offset;
+    size_t length;
+    size_t labelOffset;
+    size_t depth;
+    int    parent;
+    int    child1;
+    int    childN;
 };
 
 #endif /* GSMobiHelper_h */
