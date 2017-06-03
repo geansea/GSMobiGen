@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		29F80EBF1EE29A2D008A787E /* GSMobiHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F80EB71EE29A2D008A787E /* GSMobiHelper.cpp */; };
+		29F80EC01EE29A2D008A787E /* GSMobiPacker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F80EB91EE29A2D008A787E /* GSMobiPacker.cpp */; };
+		29F80EC11EE29A2D008A787E /* GSPdbHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F80EBB1EE29A2D008A787E /* GSPdbHelper.cpp */; };
+		29F80EC21EE29A2D008A787E /* GSPdbPacker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F80EBD1EE29A2D008A787E /* GSPdbPacker.cpp */; };
 		29F858581ECB5EC6000C41B9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F858571ECB5EC6000C41B9 /* main.cpp */; };
-		29F8585B1ECB5EFA000C41B9 /* GSMobiDoc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29F8585A1ECB5EFA000C41B9 /* GSMobiDoc.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,10 +27,18 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		29F80EB51EE29A23008A787E /* GSMobiDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSMobiDef.h; path = ../../include/GSMobiDef.h; sourceTree = "<group>"; };
+		29F80EB61EE29A23008A787E /* IGSMobiPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGSMobiPacker.h; path = ../../include/IGSMobiPacker.h; sourceTree = "<group>"; };
+		29F80EB71EE29A2D008A787E /* GSMobiHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSMobiHelper.cpp; path = ../../source/GSMobiHelper.cpp; sourceTree = "<group>"; };
+		29F80EB81EE29A2D008A787E /* GSMobiHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSMobiHelper.h; path = ../../source/GSMobiHelper.h; sourceTree = "<group>"; };
+		29F80EB91EE29A2D008A787E /* GSMobiPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSMobiPacker.cpp; path = ../../source/GSMobiPacker.cpp; sourceTree = "<group>"; };
+		29F80EBA1EE29A2D008A787E /* GSMobiPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSMobiPacker.h; path = ../../source/GSMobiPacker.h; sourceTree = "<group>"; };
+		29F80EBB1EE29A2D008A787E /* GSPdbHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSPdbHelper.cpp; path = ../../source/GSPdbHelper.cpp; sourceTree = "<group>"; };
+		29F80EBC1EE29A2D008A787E /* GSPdbHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSPdbHelper.h; path = ../../source/GSPdbHelper.h; sourceTree = "<group>"; };
+		29F80EBD1EE29A2D008A787E /* GSPdbPacker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSPdbPacker.cpp; path = ../../source/GSPdbPacker.cpp; sourceTree = "<group>"; };
+		29F80EBE1EE29A2D008A787E /* GSPdbPacker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GSPdbPacker.h; path = ../../source/GSPdbPacker.h; sourceTree = "<group>"; };
 		29F858451ECB51A1000C41B9 /* GSMobiGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = GSMobiGen; sourceTree = BUILT_PRODUCTS_DIR; };
 		29F858571ECB5EC6000C41B9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
-		29F858591ECB5EEC000C41B9 /* GSMobiDoc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GSMobiDoc.h; path = ../../include/GSMobiDoc.h; sourceTree = "<group>"; };
-		29F8585A1ECB5EFA000C41B9 /* GSMobiDoc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GSMobiDoc.cpp; path = ../../source/GSMobiDoc.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,7 +73,8 @@
 		29F8584F1ECB51F9000C41B9 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				29F858591ECB5EEC000C41B9 /* GSMobiDoc.h */,
+				29F80EB51EE29A23008A787E /* GSMobiDef.h */,
+				29F80EB61EE29A23008A787E /* IGSMobiPacker.h */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -70,7 +82,14 @@
 		29F858501ECB5201000C41B9 /* source */ = {
 			isa = PBXGroup;
 			children = (
-				29F8585A1ECB5EFA000C41B9 /* GSMobiDoc.cpp */,
+				29F80EB71EE29A2D008A787E /* GSMobiHelper.cpp */,
+				29F80EB81EE29A2D008A787E /* GSMobiHelper.h */,
+				29F80EB91EE29A2D008A787E /* GSMobiPacker.cpp */,
+				29F80EBA1EE29A2D008A787E /* GSMobiPacker.h */,
+				29F80EBB1EE29A2D008A787E /* GSPdbHelper.cpp */,
+				29F80EBC1EE29A2D008A787E /* GSPdbHelper.h */,
+				29F80EBD1EE29A2D008A787E /* GSPdbPacker.cpp */,
+				29F80EBE1EE29A2D008A787E /* GSPdbPacker.h */,
 			);
 			name = source;
 			sourceTree = "<group>";
@@ -132,8 +151,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29F80EC11EE29A2D008A787E /* GSPdbHelper.cpp in Sources */,
+				29F80EBF1EE29A2D008A787E /* GSMobiHelper.cpp in Sources */,
 				29F858581ECB5EC6000C41B9 /* main.cpp in Sources */,
-				29F8585B1ECB5EFA000C41B9 /* GSMobiDoc.cpp in Sources */,
+				29F80EC01EE29A2D008A787E /* GSMobiPacker.cpp in Sources */,
+				29F80EC21EE29A2D008A787E /* GSPdbPacker.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

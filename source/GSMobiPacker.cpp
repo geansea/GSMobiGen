@@ -357,7 +357,7 @@ GSBytes GSMobiPacker::BuildRecord0()
 {
     // Prepare
     GSExthHeader exthHeader;
-    AddExthInfo(GS_MOBI_EXTH_START_OFFSET, m_sections[0].htmlBeginPos);
+    AddExthInfo(GS_MOBI_EXTH_START_OFFSET, (int)m_sections[0].htmlBeginPos);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_SOFTWARE, 202);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_MAJOR_VER, 1);
     AddExthInfo(GS_MOBI_EXTH_CREATOR_MINOR_VER, 1);

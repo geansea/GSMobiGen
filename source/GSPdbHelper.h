@@ -1,6 +1,7 @@
 #ifndef GSPdbHelper_h
 #define GSPdbHelper_h
 
+#include <stdlib.h>
 #include "../include/GSMobiDef.h"
 #include <vector>
 #include <string>
