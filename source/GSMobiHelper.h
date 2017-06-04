@@ -208,8 +208,8 @@ struct GSIndxHeader
 enum GS_TAGX_TAG
 {
     GS_TAGX_END              = 0, 
-    GS_TAGX_Offset           = 1,  // NCX | Position offset for the beginning of NCX record (filepos) Ex: Beginning of a chapter
-    GS_TAGX_Length           = 2,  // NCX | Record length. Ex: Chapter length
+    GS_TAGX_Offset           = 1,  // NCX | Position offset for the beginning of NCX record
+    GS_TAGX_Length           = 2,  // NCX | Record length
     GS_TAGX_LabelOffset      = 3,  // NCX | Label offset in CNCX
     GS_TAGX_Depth            = 4,  // NCX | Depth/Level of CNCX
     GS_TAGX_ClassOffset      = 5,  // NCX | Class offset in CNCX
@@ -233,7 +233,8 @@ struct GSTagx
     GSTagx();
     void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
-    void AddTag(GS_TAGX_TAG tag, int valueNum, int mask);
+    void AddTag(GS_TAGX_TAG tag, uint8_t valueNum, uint8_t mask);
+    uint8_t MaskForTag(GS_TAGX_TAG tag);
 };
 
 #define GS_TAGX_HEADER_LEN 0x0C
@@ -261,13 +262,24 @@ struct GSMobiSection
 
 struct GSMobiEntry
 {
-    size_t offset;
-    size_t length;
-    size_t labelOffset;
-    size_t depth;
-    int    parent;
-    int    child1;
-    int    childN;
+    int offset;
+    int length;
+    int labelOffset;
+    int depth;
+    int classOffset;
+    int parent;
+    int child1;
+    int childN;
+    int imageIndex;
+    int authorOffset;
+    int descOffset;
+    
+    string label;
+    string clazz;
+    string author;
+    string description;
+    
+    GSMobiEntry();
 };
 
 #endif /* GSMobiHelper_h */

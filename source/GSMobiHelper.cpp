@@ -360,10 +360,24 @@ void GSTagx::WriteTo(GSBytes & bytes) const
     }
 }
 
-void GSTagx::AddTag(GS_TAGX_TAG tag, int valueNum, int mask)
+void GSTagx::AddTag(GS_TAGX_TAG tag, uint8_t valueNum, uint8_t mask)
 {
     uint32_t tagValue = (tag << 24) | (valueNum << 16) | (mask << 8) | (GS_TAGX_END == tag);
     tags.push_back(tagValue);
+}
+
+uint8_t GSTagx::MaskForTag(GS_TAGX_TAG tag)
+{
+    uint8_t mask = 0;
+    for (size_t i = 0; i < tags.size(); ++i)
+    {
+        if (((tags[i] >> 24) & 0xFF) == tag)
+        {
+            mask = (tags[i] >> 8) & 0xFF;
+            break;
+        }
+    }
+    return mask;
 }
 
 GSMobiChapter::GSMobiChapter()
@@ -379,5 +393,20 @@ void GSMobiChapter::SetPureTextContent(const string & text)
 GSMobiSection::GSMobiSection()
     : htmlBeginPos(0)
     , htmlEndPos(0)
+{
+}
+
+GSMobiEntry::GSMobiEntry()
+    : offset(-1)
+    , length(-1)
+    , labelOffset(-1)
+    , depth(-1)
+    , classOffset(-1)
+    , parent(-1)
+    , child1(-1)
+    , childN(-1)
+    , imageIndex(-1)
+    , authorOffset(-1)
+    , descOffset(-1)
 {
 }
