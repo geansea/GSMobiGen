@@ -303,6 +303,57 @@ GSBytes GSMobiPacker::Lz77Compress(const GSBytes & bytes)
 vector<GSMobiEntry> GSMobiPacker::BuildCNCX(GSBytes & cncx, GSTagx & tagx)
 {
     vector<GSMobiEntry> entries;
+    if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
+    {
+        // periodical
+        GSMobiEntry root;
+        root.offset = m_sections.front().htmlBeginPos;
+        root.length = m_sections.back().htmlEndPos - root.offset;
+        root.label = TOC_STRING_EN;
+        root.depth = 0;
+        root.clazz = "periodical";
+        root.child1 = 1;
+        root.childN = m_sections.size();
+        root.imageIndex = m_mastheadIndex;
+        entries.push_back(root);
+        // section
+        int articleIndex = m_sections.size() + 1;
+        for (size_t i = 0; i < m_sections.size(); ++i)
+        {
+            const GSMobiSection &section = m_sections[i];
+            GSMobiEntry node;
+            node.offset = section.htmlBeginPos;
+            node.length = section.htmlEndPos - root.offset;
+            node.label = section.title;
+            node.depth = 1;
+            node.clazz = "section";
+            node.parent = 0;
+            node.child1 = articleIndex;
+            node.childN = articleIndex + section.chapters.size();
+            entries.push_back(node);
+            articleIndex += section.chapters.size();
+        }
+        // article
+        for (size_t i = 0; i < m_sections.size(); ++i)
+        {
+            const GSMobiSection &section = m_sections[i];
+            for (size_t j = 0; j < section.chapters.size(); ++j)
+            {
+                const GSMobiChapter &chapter = section.chapters[j];
+                GSMobiEntry node;
+                node.offset = section.htmlBeginPos;
+                node.length = section.htmlEndPos - root.offset;
+                node.label = section.title;
+                node.depth = 2;
+                node.clazz = "article";
+                node.parent = i + 1;
+                entries.push_back(node);
+            }
+        }
+    }
+    else
+    {
+    }
     return entries;
 }
 
