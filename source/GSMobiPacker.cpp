@@ -124,8 +124,8 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     // INDX & CNCX records
     //
     GSBytes cncxRecord;
+    vector<GSMobiEntry> entries = BuildCNCX(cncxRecord);
     GSTagx tagx;
-    vector<GSMobiEntry> entries = BuildCNCX(cncxRecord, tagx);
     pdbRecords.push_back(BuildINDXInfo(entries, tagx));
     pdbRecords.push_back(BuildINDXValue(entries, tagx));
     pdbRecords.push_back(cncxRecord);
@@ -300,7 +300,7 @@ GSBytes GSMobiPacker::Lz77Compress(const GSBytes & bytes)
     return lz77;
 }
 
-vector<GSMobiEntry> GSMobiPacker::BuildCNCX(GSBytes & cncx, GSTagx & tagx)
+vector<GSMobiEntry> GSMobiPacker::BuildEntries()
 {
     vector<GSMobiEntry> entries;
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
@@ -355,6 +355,10 @@ vector<GSMobiEntry> GSMobiPacker::BuildCNCX(GSBytes & cncx, GSTagx & tagx)
     {
     }
     return entries;
+}
+
+vector<GSMobiEntry> GSMobiPacker::BuildCNCX(GSBytes & cncx)
+{
 }
 
 GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
