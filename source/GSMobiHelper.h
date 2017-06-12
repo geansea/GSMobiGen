@@ -15,7 +15,7 @@ inline void GSPushVWInt(GSBytes & bytes, size_t u)
     bytes.insert(bytes.end(), rbytes.rbegin(), rbytes.rend());
 }
 
-inline void -(GSBytes & bytes, const string & s)
+inline void GSPushString(GSBytes & bytes, const string & s)
 {
     GSPushVWInt(bytes, s.length());
     GSPushArray(bytes, s.c_str(), s.length());

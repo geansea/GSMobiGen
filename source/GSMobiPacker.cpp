@@ -125,9 +125,10 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     //
     GSTagx tagx = BuildTagx();
     vector<GSMobiEntry> entries = BuildEntries();
+    GSBytes cncx = BuildCNCX(entries);
     pdbRecords.push_back(BuildINDXInfo(entries, tagx));
     pdbRecords.push_back(BuildINDXValue(entries, tagx));
-    pdbRecords.push_back(BuildCNCX(entries));
+    pdbRecords.push_back(cncx);
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
     {
         GSTagx secondTagx;
@@ -331,29 +332,29 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
     {
         // periodical
         GSMobiEntry root;
-        root.offset = m_sections.front().htmlBeginPos;
-        root.length = m_sections.back().htmlEndPos - root.offset;
+        root.offset = (int)m_sections.front().htmlBeginPos;
+        root.length = (int)m_sections.back().htmlEndPos - root.offset;
         root.label = TOC_STRING_EN;
         root.depth = 0;
         root.clazz = "periodical";
         root.child1 = 1;
-        root.childN = m_sections.size();
+        root.childN = (int)m_sections.size();
         root.imageIndex = m_mastheadIndex;
         entries.push_back(root);
         // section
-        int articleIndex = m_sections.size() + 1;
+        int articleIndex = (int)m_sections.size() + 1;
         for (size_t i = 0; i < m_sections.size(); ++i)
         {
             const GSMobiSection &section = m_sections[i];
             GSMobiEntry node;
-            node.offset = section.htmlBeginPos;
-            node.length = section.htmlEndPos - root.offset;
+            node.offset = (int)section.htmlBeginPos;
+            node.length = (int)section.htmlEndPos - root.offset;
             node.label = section.title;
             node.depth = 1;
             node.clazz = "section";
             node.parent = 0;
             node.child1 = articleIndex;
-            node.childN = articleIndex + section.chapters.size();
+            node.childN = articleIndex + (int)section.chapters.size();
             entries.push_back(node);
             articleIndex += section.chapters.size();
         }
@@ -365,12 +366,12 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
             {
                 const GSMobiChapter &chapter = section.chapters[j];
                 GSMobiEntry node;
-                node.offset = section.htmlBeginPos;
-                node.length = section.htmlEndPos - root.offset;
-                node.label = section.title;
+                node.offset = (int)chapter.htmlBeginPos;
+                node.length = (int)chapter.htmlEndPos - root.offset;
+                node.label = chapter.title;
                 node.depth = 2;
                 node.clazz = "article";
-                node.parent = i + 1;
+                node.parent = (int)i + 1;
                 entries.push_back(node);
             }
         }
