@@ -123,16 +123,17 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     //
     // INDX & CNCX records
     //
-    GSBytes cncxRecord;
-    vector<GSMobiEntry> entries = BuildCNCX(cncxRecord);
-    GSTagx tagx;
+    GSTagx tagx = BuildTagx();
+    vector<GSMobiEntry> entries = BuildEntries();
     pdbRecords.push_back(BuildINDXInfo(entries, tagx));
     pdbRecords.push_back(BuildINDXValue(entries, tagx));
-    pdbRecords.push_back(cncxRecord);
+    pdbRecords.push_back(BuildCNCX(entries));
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
     {
-        vector<GSMobiEntry> secondEntries;
         GSTagx secondTagx;
+        secondTagx.AddTag(GS_TAGX_Secondary, 3, 0x01);
+        secondTagx.AddTag(GS_TAGX_END,       0, 0x00);
+        vector<GSMobiEntry> secondEntries;
         pdbRecords.push_back(BuildINDXInfo(secondEntries, secondTagx, true));
         pdbRecords.push_back(BuildINDXValue(secondEntries, secondTagx, true));
     }
@@ -300,6 +301,29 @@ GSBytes GSMobiPacker::Lz77Compress(const GSBytes & bytes)
     return lz77;
 }
 
+GSTagx GSMobiPacker::BuildTagx()
+{
+    GSTagx tagx;
+    tagx.AddTag(GS_TAGX_Offset,      1, 0x01);
+    tagx.AddTag(GS_TAGX_Length,      1, 0x02);
+    tagx.AddTag(GS_TAGX_LabelOffset, 1, 0x04);
+    tagx.AddTag(GS_TAGX_Depth,       1, 0x08);
+    tagx.AddTag(GS_TAGX_ClassOffset, 1, 0x10);
+    tagx.AddTag(GS_TAGX_Parent,      1, 0x20);
+    tagx.AddTag(GS_TAGX_Child1,      1, 0x40);
+    tagx.AddTag(GS_TAGX_ChildN,      1, 0x80);
+    tagx.AddTag(GS_TAGX_END,         0, 0x00);
+    if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
+    {
+        tagx.controlByteCount = 2;
+        tagx.AddTag(GS_TAGX_ImageIndex,   1, 0x01);
+        tagx.AddTag(GS_TAGX_DescOffset,   1, 0x02);
+        tagx.AddTag(GS_TAGX_AuthorOffset, 1, 0x04);
+        tagx.AddTag(GS_TAGX_END,          0, 0x00);
+    }
+    return tagx;
+}
+
 vector<GSMobiEntry> GSMobiPacker::BuildEntries()
 {
     vector<GSMobiEntry> entries;
@@ -357,8 +381,34 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
     return entries;
 }
 
-vector<GSMobiEntry> GSMobiPacker::BuildCNCX(GSBytes & cncx)
+GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
 {
+    GSBytes bytes;
+    for (size_t i = 0; i < entries.size(); ++i)
+    {
+        GSMobiEntry &entry = entries[i];
+        if (!entry.label.empty())
+        {
+            entry.labelOffset = (int)bytes.size();
+            GSPushString(bytes, entry.label);
+        }
+        if (!entry.clazz.empty())
+        {
+            entry.classOffset = (int)bytes.size();
+            GSPushString(bytes, entry.clazz);
+        }
+        if (!entry.description.empty())
+        {
+            entry.descOffset = (int)bytes.size();
+            GSPushString(bytes, entry.description);
+        }
+        if (!entry.author.empty())
+        {
+            entry.authorOffset = (int)bytes.size();
+            GSPushString(bytes, entry.author);
+        }
+    }
+    return bytes;
 }
 
 GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)

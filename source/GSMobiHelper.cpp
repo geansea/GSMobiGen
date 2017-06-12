@@ -364,6 +364,7 @@ void GSTagx::AddTag(GS_TAGX_TAG tag, uint8_t valueNum, uint8_t mask)
 {
     uint32_t tagValue = (tag << 24) | (valueNum << 16) | (mask << 8) | (GS_TAGX_END == tag);
     tags.push_back(tagValue);
+    length = GS_TAGX_HEADER_LEN + (uint32_t)tags.size() * 4;
 }
 
 uint8_t GSTagx::MaskForTag(GS_TAGX_TAG tag)
@@ -371,7 +372,7 @@ uint8_t GSTagx::MaskForTag(GS_TAGX_TAG tag)
     uint8_t mask = 0;
     for (size_t i = 0; i < tags.size(); ++i)
     {
-        if (((tags[i] >> 24) & 0xFF) == tag)
+        if ((int)((tags[i] >> 24) & 0xFF) == tag)
         {
             mask = (tags[i] >> 8) & 0xFF;
             break;

@@ -28,8 +28,9 @@ private:
     string BuildMainHtml();
     vector<GSBytes> BuildTextRecords(const string & html);
     GSBytes Lz77Compress(const GSBytes & bytes);
+    GSTagx BuildTagx();
     vector<GSMobiEntry> BuildEntries();
-    vector<GSMobiEntry> BuildCNCX(GSBytes & cncx);
+    GSBytes BuildCNCX(vector<GSMobiEntry> & entries);
     GSBytes BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary = false);
     GSBytes BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary = false);
     GSBytes BuildFLIS();
