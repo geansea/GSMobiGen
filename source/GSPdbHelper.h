@@ -108,4 +108,7 @@ struct GSPdbRecord
 
 #define GS_PDB_RECORD_LEN 8
 
+bool GSReadFile(const char * pFilePath, GSBytes & bytes);
+bool GSWriteFile(const char * pFilePath, const GSBytes & bytes);
+
 #endif /* GSPdbHelper_h */

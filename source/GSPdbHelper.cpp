@@ -1,5 +1,6 @@
 #include "GSPdbHelper.h"
 #include <time.h>
+#include <fstream>
 
 GSPdbHeader::GSPdbHeader()
     : name()
@@ -75,4 +76,33 @@ void GSPdbRecord::WriteTo(GSBytes & bytes) const
 {
     GSPushU32BE(bytes, dataOff);
     GSPushU32BE(bytes, (attributes << 24) | uniqueID);
+}
+
+bool GSReadFile(const char * pFilePath, GSBytes & bytes)
+{
+    ifstream file(pFilePath, ios::binary);
+    if (file.fail())
+    {
+        return false;
+    }
+    // Stop eating new lines in binary mode!!!
+    file.unsetf(ios::skipws);
+    file.seekg(0, ios::end);
+    streampos fileSize = file.tellg();
+    bytes.resize(fileSize);
+    file.seekg(0, ios::beg);
+    file.read(&bytes[0], bytes.size());
+    return true;
+}
+
+bool GSWriteFile(const char * pFilePath, const GSBytes & bytes)
+{
+    ofstream file(pFilePath, ios::binary);
+    if (file.fail())
+    {
+        return false;
+    }
+    file.write(&bytes[0], bytes.size());
+    file.close();
+    return true;
 }

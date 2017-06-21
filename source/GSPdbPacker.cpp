@@ -21,12 +21,6 @@ void GSPdbPacker::AddRecord(const GSBytes & record)
 
 bool GSPdbPacker::WriteTo(const char * pFilePath)
 {
-    // Create file
-    ofstream file(pFilePath, ios::binary);
-    if (file.fail())
-    {
-        return false;
-    }
     // Prepare
     uint16_t recordCount = (uint16_t)m_records.size();
     m_header.numRecords = recordCount;
@@ -48,7 +42,5 @@ bool GSPdbPacker::WriteTo(const char * pFilePath)
         bytes.insert(bytes.end(), m_records[i].begin(), m_records[i].end());
     }
     // Write file
-    file.write(&bytes[0], bytes.size());
-    file.close();
-    return true;
+    return GSWriteFile(pFilePath, bytes);
 }
