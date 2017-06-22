@@ -6,6 +6,9 @@
 #define START_STRING_EN "Start"
 #define START_STRING_ZH "\xE6\xAD\xA3\xE6\x96\x87"
 
+#define FILE_POS_STRING_LEN 10
+#define INDEX_STRING_LEN 8
+
 IGSMobiPacker * IGSMobiPacker::Create()
 {
     return new GSMobiPacker();
@@ -141,13 +144,24 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     //
     // Image records
     //
+    // Cover
     m_mobiHeader.firstImageIndex = (uint32_t)pdbRecords.size();
     m_coverIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
-
+    GSBytes cover;
+    GSReadFile(m_coverPath.c_str(), cover);
+    pdbRecords.push_back(cover);
+    // Thumb
     m_thumbIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
-
+    GSBytes thumb;
+    GSReadFile(m_thumbPath.c_str(), thumb);
+    pdbRecords.push_back(thumb);
+    // Masthead
+    m_mastheadIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
+    GSBytes masthead;
+    GSReadFile(m_mastheadPath.c_str(), masthead);
+    pdbRecords.push_back(masthead);
     //
-    // FLIS & FCIS & End
+    // FLIS & FCIS & EOF
     //
     m_mobiHeader.flisIndex = (uint32_t)pdbRecords.size();
     pdbRecords.push_back(BuildFLIS());
@@ -189,9 +203,8 @@ string GSMobiPacker::BuildMainHtml()
         tocString = TOC_STRING_ZH;
         startString = START_STRING_ZH;
     }
-    const int POS_LEN = 10;
-    char posString[POS_LEN + 1] = "0000000000";
-    char idString[POS_LEN + 1] = "";
+    char posString[FILE_POS_STRING_LEN + 1] = "0000000000";
+    char idString[INDEX_STRING_LEN + 1] = "";
     // Output
     string html;
     html += "<html>";
@@ -221,7 +234,7 @@ string GSMobiPacker::BuildMainHtml()
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
             const GSMobiChapter &chapter = section.chapters[j];
-            snprintf(idString, POS_LEN, "%zu-%zu", i, j);
+            snprintf(idString, INDEX_STRING_LEN, "%zu-%zu", i, j);
             html += "<li><a href=\"#chap";
             html += idString;
             html += "\">" + chapter.title + "</a></li>";
@@ -237,7 +250,7 @@ string GSMobiPacker::BuildMainHtml()
         {
             GSMobiChapter &chapter = section.chapters[j];
             chapter.htmlBeginPos = html.length();
-            snprintf(idString, POS_LEN, "%zu-%zu", i, j);
+            snprintf(idString, INDEX_STRING_LEN, "%zu-%zu", i, j);
             html += "<h1 id=\"chap";
             html += idString;
             html += "\">" + chapter.title + "</h1>";
@@ -250,10 +263,10 @@ string GSMobiPacker::BuildMainHtml()
     html += "</body>";
     html += "</html>";
     // Fix pos
-    snprintf(posString, POS_LEN, "%0*zu", POS_LEN, tocPos);
-    html.replace(tocPosIndex, POS_LEN, posString, POS_LEN);
-    snprintf(posString, POS_LEN, "%0*zu", POS_LEN, m_sections[0].htmlBeginPos);
-    html.replace(startPosIndex, POS_LEN, posString, POS_LEN);
+    snprintf(posString, FILE_POS_STRING_LEN, "%0*zu", FILE_POS_STRING_LEN, tocPos);
+    html.replace(tocPosIndex, FILE_POS_STRING_LEN, posString, FILE_POS_STRING_LEN);
+    snprintf(posString, FILE_POS_STRING_LEN, "%0*zu", FILE_POS_STRING_LEN, m_sections[0].htmlBeginPos);
+    html.replace(startPosIndex, FILE_POS_STRING_LEN, posString, FILE_POS_STRING_LEN);
     return html;
 }
 
@@ -414,7 +427,16 @@ GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
 
 GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
 {
-    return GSBytes();
+    const int INDEX_LEN = 9;
+    char indexStr[INDEX_LEN + 1] = "000000000";
+
+    GSIndxHeader header;
+    header.indexType = 2;
+    header.idxtOffset = GS_INDX_HEADER_LEN + tagx.length + INDEX_LEN;
+    header.tagxOffset = GS_INDX_HEADER_LEN;
+    GSBytes bytes;
+
+    return bytes;
 }
 
 GSBytes GSMobiPacker::BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
