@@ -1,13 +1,13 @@
 #include "GSMobiPacker.h"
 #include "GSPdbPacker.h"
 
-#define TOC_STRING_EN "Table of Contents"
-#define TOC_STRING_ZH "\xE7\x9B\xAE\xE5\xBD\x95"
-#define START_STRING_EN "Start"
-#define START_STRING_ZH "\xE6\xAD\xA3\xE6\x96\x87"
+#define TOC_STR_EN "Table of Contents"
+#define TOC_STR_ZH "\xE7\x9B\xAE\xE5\xBD\x95"
+#define START_STR_EN "Start"
+#define START_STR_ZH "\xE6\xAD\xA3\xE6\x96\x87"
 
-#define FILE_POS_STRING_LEN 10
-#define INDEX_STRING_LEN 8
+#define POS_STR_LEN 10
+#define TMP_STR_LEN 10
 
 IGSMobiPacker * IGSMobiPacker::Create()
 {
@@ -196,15 +196,15 @@ void GSMobiPacker::AddExthInfo(GS_MOBI_EXTH_INNER_TYPE type, int value)
 string GSMobiPacker::BuildMainHtml()
 {
     // Prepare
-    string tocString = TOC_STRING_EN;
-    string startString = START_STRING_EN;
+    string tocString = TOC_STR_EN;
+    string startString = START_STR_EN;
     if (m_mobiHeader.locale == GS_MOBI_LANGUAGE_ZH)
     {
-        tocString = TOC_STRING_ZH;
-        startString = START_STRING_ZH;
+        tocString = TOC_STR_ZH;
+        startString = START_STR_ZH;
     }
-    char posString[FILE_POS_STRING_LEN + 1] = "0000000000";
-    char idString[INDEX_STRING_LEN + 1] = "";
+    char posString[POS_STR_LEN + 1] = "0000000000";
+    char idString[TMP_STR_LEN + 1] = "";
     // Output
     string html;
     html += "<html>";
@@ -234,7 +234,7 @@ string GSMobiPacker::BuildMainHtml()
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
             const GSMobiChapter &chapter = section.chapters[j];
-            snprintf(idString, INDEX_STRING_LEN, "%zu-%zu", i, j);
+            snprintf(idString, TMP_STR_LEN, "%zu-%zu", i, j);
             html += "<li><a href=\"#chap";
             html += idString;
             html += "\">" + chapter.title + "</a></li>";
@@ -250,7 +250,7 @@ string GSMobiPacker::BuildMainHtml()
         {
             GSMobiChapter &chapter = section.chapters[j];
             chapter.htmlBeginPos = html.length();
-            snprintf(idString, INDEX_STRING_LEN, "%zu-%zu", i, j);
+            snprintf(idString, TMP_STR_LEN, "%zu-%zu", i, j);
             html += "<h1 id=\"chap";
             html += idString;
             html += "\">" + chapter.title + "</h1>";
@@ -263,10 +263,10 @@ string GSMobiPacker::BuildMainHtml()
     html += "</body>";
     html += "</html>";
     // Fix pos
-    snprintf(posString, FILE_POS_STRING_LEN, "%0*zu", FILE_POS_STRING_LEN, tocPos);
-    html.replace(tocPosIndex, FILE_POS_STRING_LEN, posString, FILE_POS_STRING_LEN);
-    snprintf(posString, FILE_POS_STRING_LEN, "%0*zu", FILE_POS_STRING_LEN, m_sections[0].htmlBeginPos);
-    html.replace(startPosIndex, FILE_POS_STRING_LEN, posString, FILE_POS_STRING_LEN);
+    snprintf(posString, POS_STR_LEN, "%0*zu", POS_STR_LEN, tocPos);
+    html.replace(tocPosIndex, POS_STR_LEN, posString, POS_STR_LEN);
+    snprintf(posString, POS_STR_LEN, "%0*zu", POS_STR_LEN, m_sections[0].htmlBeginPos);
+    html.replace(startPosIndex, POS_STR_LEN, posString, POS_STR_LEN);
     return html;
 }
 
@@ -347,7 +347,7 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
         GSMobiEntry root;
         root.offset = (int)m_sections.front().htmlBeginPos;
         root.length = (int)m_sections.back().htmlEndPos - root.offset;
-        root.label = TOC_STRING_EN;
+        root.label = TOC_STR_EN;
         root.depth = 0;
         root.clazz = "periodical";
         root.child1 = 1;
@@ -369,7 +369,7 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
             node.child1 = articleIndex;
             node.childN = articleIndex + (int)section.chapters.size();
             entries.push_back(node);
-            articleIndex += section.chapters.size();
+            articleIndex += (int)section.chapters.size();
         }
         // article
         for (size_t i = 0; i < m_sections.size(); ++i)
@@ -427,21 +427,71 @@ GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
 
 GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
 {
-    const int INDEX_LEN = 9;
-    char indexStr[INDEX_LEN + 1] = "000000000";
+    uint16_t entryCount = (uint16_t)entries.size();
+    int indexLen = 0;
+    for (uint16_t count = entryCount; count; count >>= 4)
+    {
+        ++indexLen;
+    }
+    char indexStr[TMP_STR_LEN + 1] = "";
+    snprintf(indexStr, TMP_STR_LEN, "%0*X", indexLen, entryCount - 1);
+
+    uint32_t lastEntryInfoPos = GS_INDX_HEADER_LEN + tagx.length;
+    uint32_t lastEntryInfoLen = (1 + indexLen + 2 + 3) / 4 * 4;
 
     GSIndxHeader header;
     header.indexType = 2;
-    header.idxtOffset = GS_INDX_HEADER_LEN + tagx.length + INDEX_LEN;
+    header.idxtOffset = lastEntryInfoPos + lastEntryInfoLen;
     header.tagxOffset = GS_INDX_HEADER_LEN;
-    GSBytes bytes;
 
+    GSBytes bytes;
+    header.WriteTo(bytes);
+    // Last entry info
+    bytes.push_back((char)indexLen);
+    GSPushArray(bytes, indexStr, indexLen);
+    GSPushU16BE(bytes, entryCount);
+    GSPushPadding(bytes);
+    // IDXT
+    GSPushU32BE(bytes, 'IDXT');
+    GSPushU16BE(bytes, (uint16_t)lastEntryInfoPos);
+    GSPushU16BE(bytes, 0);
     return bytes;
 }
 
 GSBytes GSMobiPacker::BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
 {
-    return GSBytes();
+    GSBytes infoBytes;
+
+
+    uint16_t entryCount = (uint16_t)entries.size();
+    int indexLen = 0;
+    for (uint16_t count = entryCount; count; count >>= 4)
+    {
+        ++indexLen;
+    }
+    char indexStr[TMP_STR_LEN + 1] = "";
+    snprintf(indexStr, TMP_STR_LEN, "%0*X", indexLen, entryCount - 1);
+
+    uint32_t lastEntryInfoPos = GS_INDX_HEADER_LEN + tagx.length;
+    uint32_t lastEntryInfoLen = (1 + indexLen + 2 + 3) / 4 * 4;
+
+    GSIndxHeader header;
+    header.indexType = 1;
+    header.idxtOffset = lastEntryInfoPos + lastEntryInfoLen;
+    header.tagxOffset = GS_INDX_HEADER_LEN;
+
+    GSBytes bytes;
+    header.WriteTo(bytes);
+    // Last entry info
+    bytes.push_back((char)indexLen);
+    GSPushArray(bytes, indexStr, indexLen);
+    GSPushU16BE(bytes, entryCount);
+    GSPushPadding(bytes);
+    // IDXT
+    GSPushU32BE(bytes, 'IDXT');
+    GSPushU16BE(bytes, (uint16_t)lastEntryInfoPos);
+    GSPushU16BE(bytes, 0);
+    return bytes;
 }
 
 GSBytes GSMobiPacker::BuildFLIS()
