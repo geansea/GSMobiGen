@@ -397,10 +397,20 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
 
 GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
 {
+    // Entry name
+    int indexLen = 0;
+    for (size_t count = entries.size(); count; count >>= 4)
+    {
+        ++indexLen;
+    }
+
     GSBytes bytes;
+    char nameStr[TMP_STR_LEN + 1] = "";
     for (size_t i = 0; i < entries.size(); ++i)
     {
         GSMobiEntry &entry = entries[i];
+        snprintf(nameStr, TMP_STR_LEN, "%0*zX", indexLen, i);
+        entry.name = nameStr;
         if (!entry.label.empty())
         {
             entry.labelOffset = (int)bytes.size();
@@ -427,70 +437,59 @@ GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
 
 GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
 {
-    uint16_t entryCount = (uint16_t)entries.size();
-    int indexLen = 0;
-    for (uint16_t count = entryCount; count; count >>= 4)
-    {
-        ++indexLen;
-    }
-    char indexStr[TMP_STR_LEN + 1] = "";
-    snprintf(indexStr, TMP_STR_LEN, "%0*X", indexLen, entryCount - 1);
-
-    uint32_t lastEntryInfoPos = GS_INDX_HEADER_LEN + tagx.length;
-    uint32_t lastEntryInfoLen = (1 + indexLen + 2 + 3) / 4 * 4;
+    GSBytes lastEntryBytes;
+    const GSMobiEntry &lastEntry = entries.back();
+    lastEntryBytes.push_back((char)lastEntry.name.length());
+    GSPushArray(lastEntryBytes, lastEntry.name.c_str(), lastEntry.name.length());
+    GSPushU16BE(lastEntryBytes, (uint16_t)entries.size());
+    GSPushPadding(lastEntryBytes);
 
     GSIndxHeader header;
     header.indexType = 2;
-    header.idxtOffset = lastEntryInfoPos + lastEntryInfoLen;
+    header.idxtOffset = GS_INDX_HEADER_LEN + tagx.length + (uint32_t)lastEntryBytes.size();
+    header.indexCount = 1;
+    header.indexEncoding = 0xFDE9;
+    header.entryCount = (uint32_t)entries.size();
+    header.cncxCount = secondary ? 0 : 1;
     header.tagxOffset = GS_INDX_HEADER_LEN;
 
     GSBytes bytes;
     header.WriteTo(bytes);
-    // Last entry info
-    bytes.push_back((char)indexLen);
-    GSPushArray(bytes, indexStr, indexLen);
-    GSPushU16BE(bytes, entryCount);
-    GSPushPadding(bytes);
-    // IDXT
+    tagx.WriteTo(bytes);
+    bytes.insert(bytes.end(), lastEntryBytes.begin(), lastEntryBytes.end());
     GSPushU32BE(bytes, 'IDXT');
-    GSPushU16BE(bytes, (uint16_t)lastEntryInfoPos);
-    GSPushU16BE(bytes, 0);
+    GSPushU16BE(bytes, (uint16_t)(GS_INDX_HEADER_LEN + tagx.length));
+    GSPushPadding(bytes);
     return bytes;
 }
 
 GSBytes GSMobiPacker::BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
 {
-    GSBytes infoBytes;
-
-
-    uint16_t entryCount = (uint16_t)entries.size();
-    int indexLen = 0;
-    for (uint16_t count = entryCount; count; count >>= 4)
+    GSBytes entryBytes;
+    vector<uint16_t> entryOffsets;
+    for (size_t i = 0; i < entries.size(); ++i)
     {
-        ++indexLen;
+        entryOffsets.push_back(GS_INDX_HEADER_LEN + (uint16_t)entryBytes.size());
+        const GSMobiEntry &entry = entries[i];
+        entryBytes.push_back((char)entry.name.length());
+        GSPushArray(entryBytes, entry.name.c_str(), entry.name.length());
     }
-    char indexStr[TMP_STR_LEN + 1] = "";
-    snprintf(indexStr, TMP_STR_LEN, "%0*X", indexLen, entryCount - 1);
-
-    uint32_t lastEntryInfoPos = GS_INDX_HEADER_LEN + tagx.length;
-    uint32_t lastEntryInfoLen = (1 + indexLen + 2 + 3) / 4 * 4;
+    GSPushPadding(entryBytes);
 
     GSIndxHeader header;
-    header.indexType = 1;
-    header.idxtOffset = lastEntryInfoPos + lastEntryInfoLen;
-    header.tagxOffset = GS_INDX_HEADER_LEN;
+    header.unknown1 = 1;
+    header.idxtOffset = GS_INDX_HEADER_LEN + (uint32_t)entryBytes.size();
+    header.indexCount = (uint32_t)entries.size();
 
     GSBytes bytes;
     header.WriteTo(bytes);
-    // Last entry info
-    bytes.push_back((char)indexLen);
-    GSPushArray(bytes, indexStr, indexLen);
-    GSPushU16BE(bytes, entryCount);
-    GSPushPadding(bytes);
-    // IDXT
+    bytes.insert(bytes.end(), entryBytes.begin(), entryBytes.end());
     GSPushU32BE(bytes, 'IDXT');
-    GSPushU16BE(bytes, (uint16_t)lastEntryInfoPos);
-    GSPushU16BE(bytes, 0);
+    for (size_t i = 0; i < entryOffsets.size(); ++i)
+    {
+        GSPushU16BE(bytes, entryOffsets[i]);
+    }
+    GSPushPadding(bytes);
     return bytes;
 }
 

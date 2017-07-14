@@ -279,7 +279,8 @@ struct GSMobiEntry
     int imageIndex;
     int authorOffset;
     int descOffset;
-    
+
+    string name;
     string label;
     string clazz;
     string author;
