@@ -30,9 +30,11 @@ private:
     GSBytes Lz77Compress(const GSBytes & bytes);
     GSTagx BuildTagx();
     vector<GSMobiEntry> BuildEntries();
+    GSTagx BuildSecondTagx();
+    vector<GSMobiEntry> BuildSecondEntries();
     GSBytes BuildCNCX(vector<GSMobiEntry> & entries);
-    GSBytes BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary = false);
-    GSBytes BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary = false);
+    GSBytes BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx);
+    GSBytes BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx);
     GSBytes BuildFLIS();
     GSBytes BuildFCIS();
     GSBytes BuildEOF();

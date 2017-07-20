@@ -367,7 +367,7 @@ void GSTagx::AddTag(GS_TAGX_TAG tag, uint8_t valueNum, uint8_t mask)
     length = GS_TAGX_HEADER_LEN + (uint32_t)tags.size() * 4;
 }
 
-uint8_t GSTagx::MaskForTag(GS_TAGX_TAG tag)
+uint8_t GSTagx::MaskForTag(GS_TAGX_TAG tag) const
 {
     uint8_t mask = 0;
     for (size_t i = 0; i < tags.size(); ++i)
@@ -409,5 +409,8 @@ GSMobiEntry::GSMobiEntry()
     , imageIndex(-1)
     , authorOffset(-1)
     , descOffset(-1)
+    , second1(-1)
+    , second2(-1)
+    , second3(-1)
 {
 }

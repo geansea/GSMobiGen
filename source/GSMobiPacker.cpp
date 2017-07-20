@@ -7,7 +7,18 @@
 #define START_STR_ZH "\xE6\xAD\xA3\xE6\x96\x87"
 
 #define POS_STR_LEN 10
-#define TMP_STR_LEN 10
+
+#include <stdarg.h>
+
+string GSStringF(const char * format, ...)
+{
+    static char buffer[1024];
+    va_list args;
+    va_start(args, format);
+    int n = vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+    return string(buffer, n);
+}
 
 IGSMobiPacker * IGSMobiPacker::Create()
 {
@@ -134,12 +145,10 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     pdbRecords.push_back(cncx);
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
     {
-        GSTagx secondTagx;
-        secondTagx.AddTag(GS_TAGX_Secondary, 3, 0x01);
-        secondTagx.AddTag(GS_TAGX_END,       0, 0x00);
-        vector<GSMobiEntry> secondEntries;
-        pdbRecords.push_back(BuildINDXInfo(secondEntries, secondTagx, true));
-        pdbRecords.push_back(BuildINDXValue(secondEntries, secondTagx, true));
+        GSTagx secondTagx = BuildSecondTagx();
+        vector<GSMobiEntry> secondEntries = BuildSecondEntries();
+        pdbRecords.push_back(BuildINDXInfo(secondEntries, secondTagx));
+        pdbRecords.push_back(BuildINDXValue(secondEntries, secondTagx));
     }
     //
     // Image records
@@ -203,25 +212,24 @@ string GSMobiPacker::BuildMainHtml()
         tocString = TOC_STR_ZH;
         startString = START_STR_ZH;
     }
-    char posString[POS_STR_LEN + 1] = "0000000000";
-    char idString[TMP_STR_LEN + 1] = "";
+    string posStrHolder = GSStringF("%0*d", POS_STR_LEN, 0);
+    vector<size_t> posIndexes;
+    vector<size_t> positions;
     // Output
     string html;
     html += "<html>";
     html += "<head>";
     html += "<guide>";
     html += "<reference title=\"" + tocString + "\" type=\"toc\" filepos=";
-    size_t tocPosIndex = html.length();
-    html += posString;
-    html += "/>";
+    posIndexes.push_back(html.length());
+    html += posStrHolder + " />";
     html += "<reference title=\"" + startString + "\" type=\"text\" filepos=";
-    size_t startPosIndex = html.length();
-    html += posString;
-    html += "/>";
+    posIndexes.push_back(html.length());
+    html += posStrHolder + " />";
     html += "</guide>";
     html += "</head>";
     html += "<body>";
-    size_t tocPos = html.length();
+    positions.push_back(html.length());
     html += "<h1>" + tocString + "</h1>";
     for (size_t i = 0; i < m_sections.size(); ++i)
     {
@@ -234,26 +242,25 @@ string GSMobiPacker::BuildMainHtml()
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
             const GSMobiChapter &chapter = section.chapters[j];
-            snprintf(idString, TMP_STR_LEN, "%zu-%zu", i, j);
-            html += "<li><a href=\"#chap";
-            html += idString;
-            html += "\">" + chapter.title + "</a></li>";
+            html += "<li><a filepos=";
+            posIndexes.push_back(html.length());
+            html += posStrHolder + ">";
+            html += chapter.title + "</a></li>";
         }
         html += "</ul>";
     }
     html += "<mbp:pagebreak />";
+    positions.push_back(html.length());
     for (size_t i = 0; i < m_sections.size(); ++i)
     {
         GSMobiSection &section = m_sections[i];
         section.htmlBeginPos = html.length();
         for (size_t j = 0; j < section.chapters.size(); ++j)
         {
+            positions.push_back(html.length());
             GSMobiChapter &chapter = section.chapters[j];
             chapter.htmlBeginPos = html.length();
-            snprintf(idString, TMP_STR_LEN, "%zu-%zu", i, j);
-            html += "<h1 id=\"chap";
-            html += idString;
-            html += "\">" + chapter.title + "</h1>";
+            html += "<h1>" + chapter.title + "</h1>";
             html += "<div>" + chapter.content + "</div>";
             html += "<mbp:pagebreak />";
             chapter.htmlEndPos = html.length();
@@ -262,11 +269,12 @@ string GSMobiPacker::BuildMainHtml()
     }
     html += "</body>";
     html += "</html>";
-    // Fix pos
-    snprintf(posString, POS_STR_LEN, "%0*zu", POS_STR_LEN, tocPos);
-    html.replace(tocPosIndex, POS_STR_LEN, posString, POS_STR_LEN);
-    snprintf(posString, POS_STR_LEN, "%0*zu", POS_STR_LEN, m_sections[0].htmlBeginPos);
-    html.replace(startPosIndex, POS_STR_LEN, posString, POS_STR_LEN);
+    // Update positions
+    for (size_t i = 0; i < posIndexes.size(); ++i)
+    {
+        string posString = GSStringF("%0*zu", POS_STR_LEN, positions[i]);
+        html.replace(posIndexes[i], POS_STR_LEN, posString);
+    }
     return html;
 }
 
@@ -385,6 +393,8 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
                 node.depth = 2;
                 node.clazz = "article";
                 node.parent = (int)i + 1;
+                node.author = "test author";
+                node.description = "test desc";
                 entries.push_back(node);
             }
         }
@@ -392,6 +402,35 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
     else
     {
     }
+    return entries;
+}
+
+GSTagx GSMobiPacker::BuildSecondTagx()
+{
+    GSTagx tagx;
+    tagx.AddTag(GS_TAGX_Secondary, 3, 0x01);
+    tagx.AddTag(GS_TAGX_END, 0, 0x00);
+    return tagx;
+}
+
+vector<GSMobiEntry> GSMobiPacker::BuildSecondEntries()
+{
+    vector<GSMobiEntry> entries;
+    GSMobiEntry entry;
+    entry.name = "author";
+    entry.second1 = 0;
+    entry.second2 = 0;
+    entry.second3 = 71;
+    entries.push_back(entry);
+
+    entry.name = "description";
+    entry.second3 = 70;
+    entries.push_back(entry);
+
+    entry.name = "mastheadImage";
+    entry.second1 = 5;
+    entry.second3 = 69;
+    entries.push_back(entry);
     return entries;
 }
 
@@ -405,37 +444,74 @@ GSBytes GSMobiPacker::BuildCNCX(vector<GSMobiEntry> & entries)
     }
 
     GSBytes bytes;
-    char nameStr[TMP_STR_LEN + 1] = "";
+    map<string, int> strMap;
+    map<string, int>::const_iterator mapIter = strMap.end();
     for (size_t i = 0; i < entries.size(); ++i)
     {
         GSMobiEntry &entry = entries[i];
-        snprintf(nameStr, TMP_STR_LEN, "%0*zX", indexLen, i);
-        entry.name = nameStr;
+        entry.name = GSStringF("%0*zX", indexLen, i);;
         if (!entry.label.empty())
         {
-            entry.labelOffset = (int)bytes.size();
-            GSPushString(bytes, entry.label);
+            mapIter = strMap.find(entry.label);
+            if (mapIter == strMap.end())
+            {
+                entry.labelOffset = (int)bytes.size();
+                GSPushString(bytes, entry.label);
+                strMap[entry.label] = entry.labelOffset;
+            }
+            else
+            {
+                entry.labelOffset = mapIter->second;
+            }
         }
         if (!entry.clazz.empty())
         {
-            entry.classOffset = (int)bytes.size();
-            GSPushString(bytes, entry.clazz);
+            mapIter = strMap.find(entry.clazz);
+            if (mapIter == strMap.end())
+            {
+                entry.classOffset = (int)bytes.size();
+                GSPushString(bytes, entry.clazz);
+                strMap[entry.clazz] = entry.classOffset;
+            }
+            else
+            {
+                entry.classOffset = mapIter->second;
+            }
         }
         if (!entry.description.empty())
         {
-            entry.descOffset = (int)bytes.size();
-            GSPushString(bytes, entry.description);
+            mapIter = strMap.find(entry.description);
+            if (mapIter == strMap.end())
+            {
+                entry.descOffset = (int)bytes.size();
+                GSPushString(bytes, entry.description);
+                strMap[entry.description] = entry.descOffset;
+            }
+            else
+            {
+                entry.descOffset = mapIter->second;
+            }
         }
         if (!entry.author.empty())
         {
-            entry.authorOffset = (int)bytes.size();
-            GSPushString(bytes, entry.author);
+            mapIter = strMap.find(entry.author);
+            if (mapIter == strMap.end())
+            {
+                entry.authorOffset = (int)bytes.size();
+                GSPushString(bytes, entry.author);
+                strMap[entry.author] = entry.authorOffset;
+            }
+            else
+            {
+                entry.authorOffset = mapIter->second;
+            }
         }
     }
+    GSPushPadding(bytes);
     return bytes;
 }
 
-GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
+GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const GSTagx & tagx)
 {
     GSBytes lastEntryBytes;
     const GSMobiEntry &lastEntry = entries.back();
@@ -450,7 +526,7 @@ GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const G
     header.indexCount = 1;
     header.indexEncoding = 0xFDE9;
     header.entryCount = (uint32_t)entries.size();
-    header.cncxCount = secondary ? 0 : 1;
+    header.cncxCount = tagx.MaskForTag(GS_TAGX_Secondary) ? 0 : 1;
     header.tagxOffset = GS_INDX_HEADER_LEN;
 
     GSBytes bytes;
@@ -463,27 +539,99 @@ GSBytes GSMobiPacker::BuildINDXInfo(const vector<GSMobiEntry> & entries, const G
     return bytes;
 }
 
-GSBytes GSMobiPacker::BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx, bool secondary)
+GSBytes GSMobiPacker::BuildINDXValue(const vector<GSMobiEntry> & entries, const GSTagx & tagx)
 {
-    GSBytes entryBytes;
+    GSBytes entriesBytes;
     vector<uint16_t> entryOffsets;
     for (size_t i = 0; i < entries.size(); ++i)
     {
-        entryOffsets.push_back(GS_INDX_HEADER_LEN + (uint16_t)entryBytes.size());
+        entryOffsets.push_back(GS_INDX_HEADER_LEN + (uint16_t)entriesBytes.size());
         const GSMobiEntry &entry = entries[i];
-        entryBytes.push_back((char)entry.name.length());
-        GSPushArray(entryBytes, entry.name.c_str(), entry.name.length());
+        entriesBytes.push_back((char)entry.name.length());
+        GSPushArray(entriesBytes, entry.name.c_str(), entry.name.length());
+
+        uint8_t bitFlag = 0;
+        GSBytes entryBytes;
+        if (entry.offset >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Offset);
+            GSPushVWInt(entryBytes, entry.offset);
+        }
+        if (entry.length >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Length);
+            GSPushVWInt(entryBytes, entry.length);
+        }
+        if (entry.labelOffset >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_LabelOffset);
+            GSPushVWInt(entryBytes, entry.labelOffset);
+        }
+        if (entry.depth >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Depth);
+            GSPushVWInt(entryBytes, entry.depth);
+        }
+        if (entry.classOffset >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_ClassOffset);
+            GSPushVWInt(entryBytes, entry.classOffset);
+        }
+        if (entry.parent >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Parent);
+            GSPushVWInt(entryBytes, entry.parent);
+        }
+        if (entry.child1 >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Child1);
+            GSPushVWInt(entryBytes, entry.child1);
+        }
+        if (entry.childN >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_ChildN);
+            GSPushVWInt(entryBytes, entry.childN);
+        }
+        if (entry.second1 >= 0 && entry.second2 >= 0 && entry.second3 >= 0)
+        {
+            bitFlag |= tagx.MaskForTag(GS_TAGX_Secondary);
+            GSPushVWInt(entryBytes, entry.second1);
+            GSPushVWInt(entryBytes, entry.second2);
+            GSPushVWInt(entryBytes, entry.second3);
+        }
+        entriesBytes.push_back((char)bitFlag);
+        if (tagx.controlByteCount > 1)
+        {
+            bitFlag = 0;
+            if (entry.imageIndex >= 0)
+            {
+                bitFlag |= tagx.MaskForTag(GS_TAGX_ImageIndex);
+                GSPushVWInt(entryBytes, entry.imageIndex);
+            }
+            if (entry.descOffset >= 0)
+            {
+                bitFlag |= tagx.MaskForTag(GS_TAGX_DescOffset);
+                GSPushVWInt(entryBytes, entry.descOffset);
+            }
+            if (entry.authorOffset >= 0)
+            {
+                bitFlag |= tagx.MaskForTag(GS_TAGX_AuthorOffset);
+                GSPushVWInt(entryBytes, entry.authorOffset);
+            }
+            entriesBytes.push_back((char)bitFlag);
+        }
+        entriesBytes.insert(entriesBytes.end(), entryBytes.begin(), entryBytes.end());
     }
-    GSPushPadding(entryBytes);
+    GSPushPadding(entriesBytes);
 
     GSIndxHeader header;
     header.unknown1 = 1;
-    header.idxtOffset = GS_INDX_HEADER_LEN + (uint32_t)entryBytes.size();
+    header.idxtOffset = GS_INDX_HEADER_LEN + (uint32_t)entriesBytes.size();
     header.indexCount = (uint32_t)entries.size();
 
     GSBytes bytes;
     header.WriteTo(bytes);
-    bytes.insert(bytes.end(), entryBytes.begin(), entryBytes.end());
+    bytes.insert(bytes.end(), entriesBytes.begin(), entriesBytes.end());
     GSPushU32BE(bytes, 'IDXT');
     for (size_t i = 0; i < entryOffsets.size(); ++i)
     {
@@ -547,6 +695,7 @@ GSBytes GSMobiPacker::BuildRecord0()
     AddExthInfo(GS_MOBI_EXTH_COVER_INDEX, m_coverIndex);
     AddExthInfo(GS_MOBI_EXTH_HAS_FAKE_COVER, 0);
     AddExthInfo(GS_MOBI_EXTH_THUMB_INDEX, m_thumbIndex);
+    exthHeader.recordCount = (uint32_t)m_exthRecords.size();
     uint32_t exthHeaderLength = GS_EXTH_HEADER_LEN;
     for (uint32_t i = 0; i < exthHeader.recordCount; ++i)
     {

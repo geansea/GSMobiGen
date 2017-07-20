@@ -240,7 +240,7 @@ struct GSTagx
     void ReadFrom(const char *& p);
     void WriteTo(GSBytes & bytes) const;
     void AddTag(GS_TAGX_TAG tag, uint8_t valueNum, uint8_t mask);
-    uint8_t MaskForTag(GS_TAGX_TAG tag);
+    uint8_t MaskForTag(GS_TAGX_TAG tag) const;
 };
 
 #define GS_TAGX_HEADER_LEN 0x0C
@@ -268,6 +268,8 @@ struct GSMobiSection
 
 struct GSMobiEntry
 {
+    string name;
+
     int offset;
     int length;
     int labelOffset;
@@ -280,12 +282,15 @@ struct GSMobiEntry
     int authorOffset;
     int descOffset;
 
-    string name;
     string label;
     string clazz;
     string author;
     string description;
-    
+
+    int second1;
+    int second2;
+    int second3;
+
     GSMobiEntry();
 };
 
