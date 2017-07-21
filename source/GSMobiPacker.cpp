@@ -161,16 +161,19 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     m_coverIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
     GSBytes cover;
     GSReadFile(m_coverPath.c_str(), cover);
+    GSPushPadding(cover);
     pdbRecords.push_back(cover);
     // Thumb
     m_thumbIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
     GSBytes thumb;
     GSReadFile(m_thumbPath.c_str(), thumb);
+    GSPushPadding(thumb);
     pdbRecords.push_back(thumb);
     // Masthead
     m_mastheadIndex = (int)(pdbRecords.size() - m_mobiHeader.firstImageIndex);
     GSBytes masthead;
     GSReadFile(m_mastheadPath.c_str(), masthead);
+    GSPushPadding(masthead);
     pdbRecords.push_back(masthead);
     m_mobiHeader.lastContentIndex = (uint16_t)(pdbRecords.size() - 1);
     //
@@ -367,19 +370,19 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
         root.imageIndex = m_mastheadIndex;
         entries.push_back(root);
         // section
-        int articleIndex = (int)m_sections.size() + 1;
+        int articleIndex = (int)m_sections.size();
         for (size_t i = 0; i < m_sections.size(); ++i)
         {
             const GSMobiSection &section = m_sections[i];
             GSMobiEntry node;
             node.offset = (int)section.htmlBeginPos;
-            node.length = (int)section.htmlEndPos - root.offset;
+            node.length = (int)section.htmlEndPos - node.offset;
             node.label = section.title;
             node.depth = 1;
             node.clazz = "section";
             node.parent = 0;
-            node.child1 = articleIndex;
-            node.childN = articleIndex + (int)section.chapters.size() - 1;
+            node.child1 = articleIndex + 1;
+            node.childN = articleIndex + (int)section.chapters.size();
             entries.push_back(node);
             articleIndex += (int)section.chapters.size();
         }
@@ -392,7 +395,7 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
                 const GSMobiChapter &chapter = section.chapters[j];
                 GSMobiEntry node;
                 node.offset = (int)chapter.htmlBeginPos;
-                node.length = (int)chapter.htmlEndPos - root.offset;
+                node.length = (int)chapter.htmlEndPos - node.offset;
                 node.label = chapter.title;
                 node.depth = 2;
                 node.clazz = "article";
