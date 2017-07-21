@@ -53,7 +53,7 @@ struct GSMobiHeader
     uint32_t headerLength;        // [04h~08h]: 0xE8
     uint32_t mobiType;            // [08h~0Ch]: GS_MOBI_TYPE
     uint32_t textEncoding;        // [0Ch~10h]: 0x04E4(1252) - CP1252(WinLatin1), 0xFDE9 - UTF-8
-    uint32_t uniqueID;            // [10h~14h]: rand()
+    uint32_t uniqueID;            // [10h~14h]: rand() * rand()
     uint32_t fileVersion;         // [14h~18h]: 6
     uint32_t ortographicIndex;    // [18h~1Ch]: 0xFFFFFFFF
     uint32_t inflectionIndex;     // [1Ch~20h]: 0xFFFFFFFF

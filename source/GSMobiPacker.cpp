@@ -27,7 +27,8 @@ IGSMobiPacker * IGSMobiPacker::Create()
 
 GSMobiPacker::GSMobiPacker()
     : m_coverIndex(0)
-    , m_thumbIndex(0)
+    , m_thumbIndex(1)
+    , m_mastheadIndex(2)
 {
 }
 
@@ -137,6 +138,7 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     //
     // INDX & CNCX records
     //
+    m_mobiHeader.indxRecordOffset = (uint32_t)pdbRecords.size();
     GSTagx tagx = BuildTagx();
     vector<GSMobiEntry> entries = BuildEntries();
     GSBytes cncx = BuildCNCX(entries);
@@ -145,6 +147,7 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     pdbRecords.push_back(cncx);
     if (GS_MOBI_NEWS_MAGAZINE == m_mobiHeader.mobiType)
     {
+        m_mobiHeader.indexNames = (uint32_t)pdbRecords.size();
         GSTagx secondTagx = BuildSecondTagx();
         vector<GSMobiEntry> secondEntries = BuildSecondEntries();
         pdbRecords.push_back(BuildINDXInfo(secondEntries, secondTagx));
@@ -169,6 +172,7 @@ bool GSMobiPacker::WriteTo(const char * pFilePath)
     GSBytes masthead;
     GSReadFile(m_mastheadPath.c_str(), masthead);
     pdbRecords.push_back(masthead);
+    m_mobiHeader.lastContentIndex = (uint16_t)(pdbRecords.size() - 1);
     //
     // FLIS & FCIS & EOF
     //
@@ -301,7 +305,7 @@ vector<GSBytes> GSMobiPacker::BuildTextRecords(const string & html)
             }
             record.push_back(html[pos + overlap]);
         }
-        record.push_back(overlap);
+        record.push_back(overlap | 0x20);
         records.push_back(record);
     }
     return records;
@@ -375,7 +379,7 @@ vector<GSMobiEntry> GSMobiPacker::BuildEntries()
             node.clazz = "section";
             node.parent = 0;
             node.child1 = articleIndex;
-            node.childN = articleIndex + (int)section.chapters.size();
+            node.childN = articleIndex + (int)section.chapters.size() - 1;
             entries.push_back(node);
             articleIndex += (int)section.chapters.size();
         }
